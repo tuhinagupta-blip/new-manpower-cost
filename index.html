@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manpower Budget Dashboard — Sabyasachi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: { 50:'#fdf8ec',100:'#f9edcc',200:'#f3d98a',300:'#edc44a',400:'#e5ae20',500:'#c9940d',600:'#a87409',700:'#85590a',800:'#6b460f',900:'#593b13' },
+            ivory:{ 50:'#fffff0',100:'#fefde8',200:'#fdf9d0',300:'#faf4b0',400:'#f5ec80',500:'#ede04a' },
+            stone:{ 50:'#fafaf9',100:'#f5f5f0',200:'#e8e6de',300:'#d4cfc5',400:'#b8b0a0',500:'#9e937f',600:'#7d7060',700:'#5e5448',800:'#433c32',900:'#2c271f',950:'#1a1712' }
+          },
+          fontFamily:{
+            display:['"Playfair Display"','Georgia','serif'],
+            body:['"DM Sans"','system-ui','sans-serif'],
+            mono:['"DM Mono"','monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{-webkit-font-smoothing:antialiased;background:#fefde8;color:#2c271f}
+
+    /* ── Nav & panels ── */
+    .top-nav{background:rgba(254,253,232,0.97);backdrop-filter:blur(8px);border-bottom:1px solid #d4cfc5}
+    .filter-bar{background:rgba(245,245,240,0.8);border-bottom:1px solid #e8e6de}
+    .panel-bg{background:#fafaf9;border-bottom:1px solid #e8e6de}
+
+    /* ── Cards ── */
+    .summary-card{background:#fff;border:1px solid #e8e6de;border-radius:.875rem;padding:1rem 1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .summary-card-label{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:#9e937f;margin-bottom:.4rem}
+    .summary-card-value{font-family:'Playfair Display',Georgia,serif;font-size:1.35rem;font-weight:600;color:#2c271f;line-height:1.1}
+    .summary-card-sub{font-family:'DM Mono',monospace;font-size:.62rem;color:#b8b0a0;margin-top:.3rem}
+    .summary-card-gold{border-color:#e5ae20;background:linear-gradient(135deg,#fdf8ec,#faf0cc)}
+    .summary-card-gold .summary-card-value{color:#85590a}
+
+    /* ── Filters ── */
+    .filter-select{background:#fff;border:1px solid #d4cfc5;color:#433c32;font-size:.75rem;font-family:'DM Mono',monospace;padding:.35rem .75rem;border-radius:.5rem;outline:none;transition:border-color .2s;cursor:pointer}
+    .filter-select:hover,.filter-select:focus{border-color:#a87409}
+
+    /* ── Charts ── */
+    .chart-card{background:#fff;border:1px solid #e8e6de;border-radius:.875rem;padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .chart-title{color:#85590a;font-family:'Playfair Display',Georgia,serif;font-weight:600;font-size:.85rem;letter-spacing:.02em;margin-bottom:.75rem}
+    /* scrollable chart wrapper */
+    .chart-scroll-outer{overflow-y:auto;max-height:340px;border-radius:.5rem}
+    .chart-wrap-fixed{position:relative;height:220px}
+    .chart-wrap-dynamic{position:relative}/* height set by JS */
+
+    /* ── Tables ── */
+    .summary-table th{font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.08em;color:#9e937f;padding:.4rem .6rem;border-bottom:1px solid #e8e6de;text-align:right;white-space:nowrap}
+    .summary-table th:first-child{text-align:left}
+    .summary-table td{font-size:.73rem;padding:.42rem .6rem;border-bottom:1px solid #f5f5f0;color:#5e5448;font-family:'DM Mono',monospace;text-align:right;white-space:nowrap}
+    .summary-table td:first-child{text-align:left;color:#2c271f;font-weight:500}
+    .summary-table tfoot td{border-bottom:none;font-weight:700;color:#85590a;border-top:1.5px solid #d4cfc5;background:#fdf8ec}
+
+    #detail-table th{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:#9e937f;padding:.5rem .75rem;border-bottom:1px solid #e8e6de;text-align:right;white-space:nowrap;cursor:pointer;user-select:none}
+    #detail-table th:first-child{text-align:left}
+    #detail-table th:hover{color:#a87409}
+    #detail-table td{font-family:'DM Mono',monospace;font-size:.67rem;padding:.48rem .75rem;border-bottom:1px solid #f5f5f0;color:#5e5448;text-align:right;white-space:nowrap}
+    #detail-table td:first-child{text-align:left;color:#2c271f}
+    #detail-table tbody tr:hover td{background:#fafaf9}
+
+    .badge-active{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:1px 7px;border-radius:99px;font-size:.6rem;font-weight:600}
+    .badge-exited{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:1px 7px;border-radius:99px;font-size:.6rem;font-weight:600}
+    .badge-invalid{background:#fef9c3;color:#a16207;border:1px solid #fde68a;padding:1px 7px;border-radius:99px;font-size:.6rem;font-weight:600}
+
+    /* ── Increment table ── */
+    #increment-table-body td{padding:.5rem .3rem;font-size:.73rem;font-family:'DM Mono',monospace;color:#5e5448;border-bottom:1px solid #f5f5f0;text-align:center}
+    #increment-table-body td:first-child{text-align:left;color:#2c271f;font-weight:500}
+    .inc-input{background:#fafaf9;border:1px solid #d4cfc5;color:#85590a;font-family:'DM Mono',monospace;font-size:.75rem;width:3.8rem;padding:.25rem .4rem;border-radius:.4rem;text-align:center;outline:none;transition:border-color .2s}
+    .inc-input:focus{border-color:#a87409}
+
+    /* ── Upload screen ── */
+    .upload-zone{border:2px dashed #d4cfc5;border-radius:1rem;padding:3rem;cursor:pointer;transition:all .25s;background:#fff}
+    .upload-zone:hover{border-color:#a87409;background:#fdf8ec}
+
+    /* ── Misc ── */
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:#f5f5f0}
+    ::-webkit-scrollbar-thumb{background:#d4cfc5;border-radius:99px}
+    ::-webkit-scrollbar-thumb:hover{background:#9e937f}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spin{animation:spin .8s linear infinite}
+    .section-card{background:#fff;border:1px solid #e8e6de;border-radius:.875rem;padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  </style>
+</head>
+<body style="background:#fefde8;min-height:100vh">
+
+<!-- UPLOAD SCREEN -->
+<div id="upload-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem 1.5rem">
+  <div style="width:100%;max-width:520px;text-align:center">
+    <p style="font-family:'Playfair Display',serif;color:#a87409;font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;margin-bottom:.75rem">Sabyasachi · HRBP</p>
+    <h1 style="font-family:'Playfair Display',serif;font-size:2.6rem;color:#2c271f;line-height:1.2;margin-bottom:1rem">Manpower Budget<br/>Dashboard</h1>
+    <p style="color:#7d7060;font-size:.875rem;margin-bottom:2rem;line-height:1.6">Upload your employee Excel file to begin. All processing happens locally — no data leaves your device.</p>
+
+    <div class="upload-zone" id="drop-zone">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1rem">
+        <div style="width:56px;height:56px;border-radius:.75rem;background:#fdf8ec;border:1px solid #e5ae20;display:flex;align-items:center;justify-content:center">
+          <svg width="28" height="28" fill="none" stroke="#a87409" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div>
+          <p style="color:#2c271f;font-weight:500;margin-bottom:.25rem">Drop Excel file here</p>
+          <p style="color:#9e937f;font-size:.8rem">or click to browse · .xlsx / .xls</p>
+        </div>
+      </div>
+      <input type="file" id="file-input" accept=".xlsx,.xls" style="display:none"/>
+    </div>
+
+    <div id="upload-error" style="display:none;margin-top:1rem;padding:.875rem 1rem;border-radius:.75rem;background:#fee2e2;border:1px solid #fecaca;color:#dc2626;font-size:.8rem;text-align:left"></div>
+
+    <div style="margin-top:1.5rem">
+      <button id="load-sample-btn" style="color:#9e937f;font-size:.8rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;background:none;border:none;font-family:inherit">Or load sample data to explore</button>
+    </div>
+
+    <div style="margin-top:1.5rem;padding:1rem;border-radius:.75rem;background:#fff;border:1px solid #e8e6de;text-align:left">
+      <p style="font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:#a87409;margin-bottom:.75rem">Expected columns</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;font-family:'DM Mono',monospace;font-size:.7rem;color:#7d7060">
+        <span>Employee ID</span><span>Annual CTC</span>
+        <span>Date of Joining</span><span>Date of Leaving</span>
+        <span>Department</span><span>Cohort (optional)</span>
+        <span>Cadre / Employee Type</span><span>Employee Name (optional)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;min-height:100vh">
+
+  <!-- Nav -->
+  <nav class="top-nav" style="position:sticky;top:0;z-index:50;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <div>
+        <p style="font-family:'Playfair Display',serif;color:#85590a;font-weight:600;font-size:1.1rem;line-height:1">Sabyasachi</p>
+        <p style="font-family:'DM Mono',monospace;color:#9e937f;font-size:.6rem;text-transform:uppercase;letter-spacing:.12em">Manpower Budget</p>
+      </div>
+      <span style="color:#d4cfc5">|</span>
+      <span id="nav-fy-label" style="font-family:'DM Mono',monospace;font-size:.8rem;color:#7d7060"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.625rem">
+      <button id="toggle-assumptions-btn" style="font-size:.72rem;color:#7d7060;border:1px solid #d4cfc5;padding:.3rem .75rem;border-radius:.5rem;cursor:pointer;background:#fff;font-family:inherit;transition:all .2s">&#9881; Assumptions</button>
+      <button id="export-btn" style="font-size:.72rem;background:#a87409;color:#fff;font-weight:600;padding:.35rem 1rem;border-radius:.5rem;cursor:pointer;border:none;font-family:inherit;transition:background .2s">&#8595; Export Excel</button>
+      <button id="reset-btn" style="font-size:.72rem;color:#9e937f;cursor:pointer;background:none;border:none;font-family:inherit">&#8617; New file</button>
+    </div>
+  </nav>
+
+  <!-- Assumptions panel -->
+  <div id="assumptions-panel" style="display:none" class="panel-bg">
+    <div style="max-width:1200px;margin:0 auto;padding:1.25rem 1.5rem">
+      <p style="font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:#a87409;margin-bottom:1rem">Calculation Assumptions</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;font-size:.8rem">
+        <div style="background:#fff;border:1px solid #e8e6de;border-radius:.75rem;padding:.875rem"><p style="color:#85590a;font-weight:600;margin-bottom:.3rem">Proration Basis</p><p style="color:#5e5448">Daily cost = Annual CTC ÷ 365</p></div>
+        <div style="background:#fff;border:1px solid #e8e6de;border-radius:.75rem;padding:.875rem"><p style="color:#85590a;font-weight:600;margin-bottom:.3rem">Financial Year</p><p style="color:#5e5448">1 April → 31 March</p></div>
+        <div style="background:#fff;border:1px solid #e8e6de;border-radius:.75rem;padding:.875rem"><p style="color:#85590a;font-weight:600;margin-bottom:.3rem">Blank Leaving Date</p><p style="color:#5e5448">Treated as Active till FY end</p></div>
+        <div style="background:#fff;border:1px solid #e8e6de;border-radius:.75rem;padding:.875rem"><p style="color:#85590a;font-weight:600;margin-bottom:.3rem">Active Headcount</p><p style="color:#5e5448">Employees with no DOL or DOL ≥ today</p></div>
+        <div style="background:#fff;border:1px solid #e8e6de;border-radius:.75rem;padding:.875rem"><p style="color:#85590a;font-weight:600;margin-bottom:.3rem">Actual Incurred Cost</p><p style="color:#5e5448">All employees active in FY (excl. pre-FY exits); 1 Apr → today</p></div>
+        <div style="background:#fff;border:1px solid #e8e6de;border-radius:.75rem;padding:.875rem"><p style="color:#85590a;font-weight:600;margin-bottom:.3rem">Increment Logic</p><p style="color:#5e5448">CTC × (1 + Base% + Market%)</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar" style="padding:.625rem 1.5rem;display:flex;flex-wrap:wrap;align-items:center;gap:.625rem">
+    <span style="font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.12em;color:#9e937f;margin-right:.5rem">Filter</span>
+    <select id="filter-cohort" class="filter-select"><option value="">All Cohorts</option></select>
+    <select id="filter-department" class="filter-select"><option value="">All Departments</option></select>
+    <select id="filter-cadre" class="filter-select"><option value="">All Cadres</option></select>
+    <select id="filter-status" class="filter-select"><option value="">All Employees</option><option value="active">Active Only</option><option value="exited">Exited Only</option></select>
+    <select id="filter-fy" class="filter-select"><option value="">Current FY</option></select>
+    <button id="clear-filters-btn" style="font-size:.72rem;color:#9e937f;cursor:pointer;background:none;border:none;font-family:inherit;margin-left:auto">Clear filters</button>
+  </div>
+
+  <main style="padding:1.5rem;max-width:1600px;margin:0 auto">
+
+    <!-- Summary Cards -->
+    <div id="summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.75rem;margin-bottom:1.5rem"></div>
+
+    <!-- Increment + Impact -->
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1.5rem" class="inc-grid">
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <p style="font-family:'Playfair Display',serif;color:#85590a;font-weight:600;font-size:.95rem">Increment Assumptions</p>
+          <button id="apply-increment-btn" style="font-size:.72rem;background:#fdf8ec;color:#85590a;border:1px solid #e5ae20;padding:.3rem .75rem;border-radius:.5rem;cursor:pointer;font-weight:600;font-family:inherit">Apply</button>
+        </div>
+        <table style="width:100%;font-size:.8rem">
+          <thead><tr style="font-family:'DM Mono',monospace;font-size:.6rem;text-transform:uppercase;color:#9e937f;border-bottom:1px solid #e8e6de">
+            <th style="padding:.3rem .25rem .5rem;text-align:left">Cadre</th>
+            <th style="padding:.3rem .25rem .5rem;text-align:center">Base %</th>
+            <th style="padding:.3rem .25rem .5rem;text-align:center">Mkt %</th>
+            <th style="padding:.3rem .25rem .5rem;text-align:center">Total</th>
+          </tr></thead>
+          <tbody id="increment-table-body"></tbody>
+        </table>
+        <p style="font-family:'DM Mono',monospace;font-size:.62rem;color:#b8b0a0;margin-top:.75rem">Edit % values then click Apply</p>
+      </div>
+      <div class="section-card">
+        <p style="font-family:'Playfair Display',serif;color:#85590a;font-weight:600;font-size:.95rem;margin-bottom:1rem">Increment Cost Impact</p>
+        <div id="increment-impact-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem"></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1: scrollable dept charts + cadre doughnut -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div class="chart-card">
+        <p class="chart-title">Headcount by Department</p>
+        <div class="chart-scroll-outer" id="hc-dept-scroll">
+          <div class="chart-wrap-dynamic" id="hc-dept-wrap"><canvas id="chart-hc-dept"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Cost by Department</p>
+        <div class="chart-scroll-outer" id="cost-dept-scroll">
+          <div class="chart-wrap-dynamic" id="cost-dept-wrap"><canvas id="chart-cost-dept"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Headcount by Cadre</p>
+        <div class="chart-wrap-fixed"><canvas id="chart-hc-cadre"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="chart-card">
+        <p class="chart-title">Monthly FY Cost Trend</p>
+        <div class="chart-wrap-fixed"><canvas id="chart-monthly"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Increment Impact by Cadre</p>
+        <div class="chart-wrap-fixed"><canvas id="chart-increment-impact"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Summary Tables -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="section-card" style="overflow-x:auto"><p class="chart-title">Cohort Summary</p><table class="summary-table" style="width:100%;margin-top:.5rem" id="table-cohort"></table></div>
+      <div class="section-card" style="overflow-x:auto"><p class="chart-title">Department Summary</p><table class="summary-table" style="width:100%;margin-top:.5rem" id="table-dept"></table></div>
+      <div class="section-card" style="overflow-x:auto"><p class="chart-title">Cadre Summary</p><table class="summary-table" style="width:100%;margin-top:.5rem" id="table-cadre"></table></div>
+    </div>
+
+    <!-- Joiners / Leavers -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div class="section-card"><p class="chart-title" style="margin-bottom:.75rem">FY Joiners</p><div id="joiners-list" style="max-height:180px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:.72rem;color:#7d7060"></div></div>
+      <div class="section-card"><p class="chart-title" style="margin-bottom:.75rem">FY Leavers</p><div id="leavers-list" style="max-height:180px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:.72rem;color:#7d7060"></div></div>
+    </div>
+
+    <!-- Validation -->
+    <div id="validation-section" style="display:none;margin-bottom:1.5rem;padding:1rem;border-radius:.875rem;background:#fefce8;border:1px solid #fde68a">
+      <p style="color:#a16207;font-weight:600;font-size:.8rem;margin-bottom:.5rem">&#9888; Data Validation Warnings</p>
+      <ul id="validation-list" style="font-family:'DM Mono',monospace;font-size:.7rem;color:#92400e;max-height:160px;overflow-y:auto;list-style:disc;padding-left:1.25rem"></ul>
+    </div>
+
+    <!-- Detail Table -->
+    <div class="section-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem">
+        <p style="font-family:'Playfair Display',serif;color:#85590a;font-weight:600;font-size:.95rem">Employee Detail Table</p>
+        <input type="text" id="detail-search" placeholder="Search ID, dept, cadre..." style="background:#fafaf9;border:1px solid #d4cfc5;border-radius:.5rem;padding:.375rem .75rem;font-size:.8rem;color:#2c271f;outline:none;width:240px;font-family:inherit"/>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%" id="detail-table">
+          <thead id="detail-thead"></thead>
+          <tbody id="detail-tbody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;font-family:'DM Mono',monospace;font-size:.7rem;color:#9e937f">
+        <span id="detail-count"></span>
+        <div style="display:flex;gap:.5rem">
+          <button id="prev-page" style="padding:.25rem .75rem;border-radius:.375rem;background:#fafaf9;border:1px solid #e8e6de;cursor:pointer;font-family:inherit;font-size:.7rem">&#8249; Prev</button>
+          <span id="page-info" style="padding:.25rem .5rem"></span>
+          <button id="next-page" style="padding:.25rem .75rem;border-radius:.375rem;background:#fafaf9;border:1px solid #e8e6de;cursor:pointer;font-family:inherit;font-size:.7rem">Next &#8250;</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer style="border-top:1px solid #e8e6de;padding:1rem 1.5rem;text-align:center;font-family:'DM Mono',monospace;font-size:.68rem;color:#b8b0a0;margin-top:1rem">
+    Sabyasachi HRBP · Manpower Budget Dashboard · All data processed locally in browser
+  </footer>
+</div>
+
+<!-- Mapping Modal -->
+<div id="mapping-modal" style="display:none;position:fixed;inset:0;background:rgba(254,253,232,.92);backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border:1px solid #d4cfc5;border-radius:1rem;padding:1.5rem;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.08)">
+    <h2 style="font-family:'Playfair Display',serif;color:#85590a;font-size:1.25rem;font-weight:600;margin-bottom:.5rem">Map Your Columns</h2>
+    <p style="color:#7d7060;font-size:.8rem;margin-bottom:1.25rem">Could not auto-detect all columns. Please map them manually.</p>
+    <div id="mapping-fields" style="display:flex;flex-direction:column;gap:.75rem"></div>
+    <div style="display:flex;gap:.75rem;margin-top:1.5rem">
+      <button id="mapping-confirm-btn" style="flex:1;background:#a87409;color:#fff;font-weight:600;padding:.625rem;border-radius:.75rem;cursor:pointer;border:none;font-family:inherit">Confirm Mapping</button>
+      <button id="mapping-cancel-btn" style="flex:1;background:#fafaf9;color:#7d7060;padding:.625rem;border-radius:.75rem;cursor:pointer;border:1px solid #e8e6de;font-family:inherit">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="loading" style="display:none;position:fixed;inset:0;background:rgba(254,253,232,.85);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center">
+  <div style="text-align:center">
+    <div style="width:44px;height:44px;border:3px solid #e5ae20;border-top-color:transparent;border-radius:50%;margin:0 auto 1rem;animation:spin .8s linear infinite"></div>
+    <p id="loading-msg" style="font-family:'Playfair Display',serif;color:#85590a;font-size:1.1rem">Processing...</p>
+  </div>
+</div>
+
+<style>
+  @media(max-width:900px){
+    .inc-grid{grid-template-columns:1fr!important}
+    #summary-cards{grid-template-columns:repeat(2,1fr)!important}
+  }
+  @media(max-width:700px){
+    nav{flex-wrap:wrap;gap:.5rem}
+  }
+</style>
+
+<script>
+window.addEventListener('load', function(){
+  if(typeof XLSX==='undefined'||typeof Chart==='undefined'){setTimeout(arguments.callee,200);return;}
+  initApp();
+});
+
+function initApp(){
+
+// ══ CADRES — 5 types including both Contractual variants ══
+// We normalise anything matching "contract" → "Contractual"
+var CADRES=['Management','Non Management','Contractual','Consultant','Intern/Trainee'];
+// For increment table we only show the 4 primary cadres + any extras found in data
+var BASE_CADRES=['Management','Non Management','Contractual','Consultant'];
+
+var COLUMN_ALIASES={
+  id:['employee id','emp id','empid','employee_id','id','serial no','sr no','s no','emp no'],
+  name:['employee name','name','emp name','full name','staff name'],
+  ctc:['annual ctc','ctc','annual_ctc','yearly ctc','annual salary','salary','cost to company'],
+  doj:['date of joining','doj','joining date','date_of_joining','join date','joining','doj date'],
+  dol:['date of leaving','dol','leaving date','date_of_leaving','exit date','resignation date','last working day','lwd','date of exit'],
+  department:['department','dept','department name','dept name','division name'],
+  cohort:['cohort','business unit','bu','division','unit','vertical'],
+  cadre:['cadre','employee type','emp type','grade','category','level','designation type','worker type','employment type','contract type'],
+};
+
+var state={
+  rawEmployees:[],employees:[],fyYear:getCurrentFY(),
+  incrementMap:{},cohortMap:{},detailPage:1,
+  detailSort:{col:'id',dir:1},detailSearch:'',
+  filters:{cohort:'',department:'',cadre:'',status:''},
+  allCadres:[], // populated from data
+};
+BASE_CADRES.forEach(function(c){state.incrementMap[c]={base:0,market:0};});
+
+// ══ DATE UTILS ══
+function getCurrentFY(){var n=new Date();return n.getMonth()>=3?n.getFullYear():n.getFullYear()-1;}
+function getFY(y){return{start:new Date(y,3,1),end:new Date(y+1,2,31)};}
+function fyLbl(y){return 'FY '+y+'\u2013'+String(y+1).slice(2);}
+function clamp(d,lo,hi){return d<lo?lo:d>hi?hi:d;}
+function dBetween(a,b){return Math.max(0,Math.round((b-a)/86400000));}
+
+// ══ INDIAN NUMBER FORMATTING ══
+// Always show in Indian system: Cr if >= 1Cr, else Lakhs
+function fmtINR(n){
+  if(n===null||n===undefined||isNaN(n))return '\u2014';
+  var abs=Math.abs(n);
+  if(abs>=10000000) return '\u20b9'+formatIndian(n/10000000,2)+' Cr';
+  if(abs>=100000)   return '\u20b9'+formatIndian(n/100000,2)+' L';
+  if(abs>=1000)     return '\u20b9'+formatIndian(n/1000,1)+' K';
+  return '\u20b9'+formatIndian(n,0);
+}
+function formatIndian(num,dec){
+  // Round to decimal places then format with Indian grouping
+  var fixed=Math.abs(num).toFixed(dec);
+  var parts=fixed.split('.');
+  var intPart=parts[0];
+  var decPart=parts[1]?'.'+parts[1]:'';
+  // Indian grouping: last 3, then pairs
+  if(intPart.length>3){
+    var last3=intPart.slice(-3);
+    var rest=intPart.slice(0,-3);
+    var grouped='';
+    for(var i=rest.length;i>0;i-=2){
+      grouped=(i-2>0?rest.slice(Math.max(0,i-2),i)+',':rest.slice(0,i)+',')+grouped;
+    }
+    intPart=grouped+last3;
+  }
+  return (num<0?'-':'')+intPart+decPart;
+}
+function fmtINRFull(n){
+  if(!n&&n!==0)return '\u2014';
+  var abs=Math.abs(n),sign=n<0?'-':'';
+  // full Indian format
+  var s=Math.round(abs).toString();
+  if(s.length<=3)return '\u20b9'+sign+s;
+  var last3=s.slice(-3),rest=s.slice(0,-3),grouped='';
+  for(var i=rest.length;i>0;i-=2){
+    grouped=(i-2>0?rest.slice(Math.max(0,i-2),i)+',':rest.slice(0,i)+',')+grouped;
+  }
+  return '\u20b9'+sign+grouped+last3;
+}
+// Chart axis labels — compact
+function fmtAxis(n){
+  var abs=Math.abs(n);
+  if(abs>=10000000)return '\u20b9'+formatIndian(n/10000000,1)+' Cr';
+  if(abs>=100000)  return '\u20b9'+formatIndian(n/100000,1)+' L';
+  if(abs>=1000)    return '\u20b9'+formatIndian(n/1000,1)+' K';
+  return '\u20b9'+n;
+}
+
+// ══ COST CALCULATIONS ══
+function actualCost(emp,fy){
+  // Count from max(FY start, DOJ) to min(today, DOL)
+  // Exclude employees whose DOL is before FY start
+  var b=getFY(fy),today=new Date();today.setHours(0,0,0,0);
+  if(emp.dol&&emp.dol<b.start)return 0; // exited before FY — exclude
+  var s=clamp(new Date(Math.max(b.start,emp.doj)),b.start,today);
+  var e=clamp(emp.dol?new Date(Math.min(today,emp.dol)):today,b.start,today);
+  return (emp.ctc/365)*dBetween(s,e);
+}
+function projCost(emp,fy){
+  var b=getFY(fy);
+  if(emp.dol&&emp.dol<b.start)return 0;
+  var s=clamp(new Date(Math.max(b.start,emp.doj)),b.start,b.end);
+  var e=clamp(emp.dol?new Date(Math.min(b.end,emp.dol)):b.end,b.start,b.end);
+  return (emp.ctc/365)*dBetween(s,e);
+}
+function incCost(emp,fy,imap){
+  var inc=(imap&&imap[emp.cadre])||{base:0,market:0};
+  return projCost({doj:emp.doj,dol:emp.dol,ctc:emp.ctc*(1+(inc.base+inc.market)/100)},fy);
+}
+function monthlyTrend(emps,fy,imap){
+  var lbl=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],res=[];
+  var b=getFY(fy);
+  for(var m=0;m<12;m++){
+    var mi=(m+3)%12,yr=m<9?fy:fy+1;
+    var ms=new Date(yr,mi,1),me=new Date(yr,mi+1,0);
+    var cost=0;
+    for(var i=0;i<emps.length;i++){
+      var emp=emps[i];if(emp.invalid||!emp.ctc)continue;
+      if(emp.dol&&emp.dol<b.start)continue; // skip pre-FY exits
+      var ctc=emp.ctc;
+      if(imap){var inc=(imap[emp.cadre])||{base:0,market:0};ctc*=(1+(inc.base+inc.market)/100);}
+      var s=clamp(new Date(Math.max(ms,emp.doj)),ms,me);
+      var e=clamp(emp.dol?new Date(Math.min(me,emp.dol)):me,ms,me);
+      cost+=(ctc/365)*Math.max(0,dBetween(s,e)+1);
+    }
+    res.push({label:lbl[m],cost:cost});
+  }
+  return res;
+}
+function groupBy(emps,key,fy,imap){
+  var m={};
+  for(var i=0;i<emps.length;i++){
+    var emp=emps[i];if(emp.invalid)continue;
+    var k=emp[key]||'Unknown';
+    if(!m[k])m[k]={headcount:0,actual:0,projected:0,incremented:0};
+    m[k].headcount++;
+    m[k].actual+=actualCost(emp,fy);
+    m[k].projected+=projCost(emp,fy);
+    m[k].incremented+=imap?incCost(emp,fy,imap):0;
+  }
+  return m;
+}
+
+// ══ PARSING ══
+function parseExcel(buf){
+  var wb=XLSX.read(buf,{type:'array',cellDates:true});
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:null,raw:false});
+}
+function detectMap(rows){
+  if(!rows.length)return{mapping:{},unmapped:['id','ctc','doj','department','cadre']};
+  var hdrs=Object.keys(rows[0]).map(function(h){return{orig:h,norm:h.toLowerCase().trim()};});
+  var mapping={},unmapped=[],req=['id','ctc','doj','department','cadre'];
+  for(var field in COLUMN_ALIASES){
+    var als=COLUMN_ALIASES[field],match=null;
+    for(var i=0;i<hdrs.length&&!match;i++){
+      for(var j=0;j<als.length&&!match;j++){
+        if(hdrs[i].norm===als[j]||hdrs[i].norm.indexOf(als[j])!==-1||als[j].indexOf(hdrs[i].norm)!==-1){
+          match=hdrs[i];
+        }
+      }
+    }
+    if(match)mapping[field]=match.orig;
+    else if(req.indexOf(field)!==-1)unmapped.push(field);
+  }
+  return{mapping:mapping,unmapped:unmapped};
+}
+function parseDate(v){
+  if(!v)return null;
+  if(v instanceof Date){if(isNaN(v))return null;var d=new Date(v);d.setHours(0,0,0,0);return d;}
+  if(typeof v==='number'){var d2=new Date(Math.round((v-25569)*86400*1000));d2.setHours(0,0,0,0);return d2;}
+  var s=String(v).trim();if(!s||s==='-'||s==='NA'||s==='N/A')return null;
+  // dd/mm/yyyy or dd-mm-yyyy
+  var m=s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+  if(m){var yr=m[3].length===2?2000+parseInt(m[3]):parseInt(m[3]);var dt=new Date(yr,parseInt(m[2])-1,parseInt(m[1]));if(!isNaN(dt))return dt;}
+  // yyyy-mm-dd
+  var m2=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+  if(m2){var dt2=new Date(parseInt(m2[1]),parseInt(m2[2])-1,parseInt(m2[3]));if(!isNaN(dt2))return dt2;}
+  var p=new Date(s);if(!isNaN(p)){p.setHours(0,0,0,0);return p;}
+  return null;
+}
+
+// KEY FIX: aggressive cadre normalisation — catches "contractual", "contract worker", etc.
+function normCadre(raw){
+  if(!raw)return null;
+  var s=String(raw).trim();
+  if(!s||s==='-')return null;
+  // Exact match first (case-insensitive)
+  var sl=s.toLowerCase();
+  for(var i=0;i<CADRES.length;i++){
+    if(CADRES[i].toLowerCase()===sl)return CADRES[i];
+  }
+  // Substring matching — order matters: "non management" before "management"
+  if(sl.indexOf('non')!==-1&&(sl.indexOf('mgmt')!==-1||sl.indexOf('manage')!==-1))return 'Non Management';
+  if(sl.indexOf('non-mgmt')!==-1||sl==='nm'||sl==='non mgmt')return 'Non Management';
+  if(sl.indexOf('contract')!==-1)return 'Contractual';  // catches "contractual","contract","contract worker","on contract"
+  if(sl.indexOf('consult')!==-1)return 'Consultant';
+  if(sl.indexOf('mgmt')!==-1||sl.indexOf('manage')!==-1)return 'Management';
+  if(sl.indexOf('intern')!==-1||sl.indexOf('train')!==-1||sl.indexOf('apprent')!==-1)return 'Intern/Trainee';
+  // Return as-is (will show as unrecognised but not dropped)
+  return s;
+}
+function parseCTC(v){
+  if(v===null||v===undefined||v==='')return null;
+  if(typeof v==='number')return v;
+  var n=parseFloat(String(v).replace(/[₹,\s]/g,''));
+  return isNaN(n)?null:n;
+}
+function buildRows(rows,mapping,cohortMap){
+  var emps=[],vals=[],ids={};
+  for(var i=0;i<rows.length;i++){
+    var row=rows[i],rn=i+2;
+    var gv=function(f){return mapping[f]?row[mapping[f]]:null;};
+    var id=String(gv('id')||('ROW'+rn)).trim();
+    var name=String(gv('name')||'').trim();
+    var ctc=parseCTC(gv('ctc'));
+    var doj=parseDate(gv('doj'));
+    var dol=parseDate(gv('dol'));
+    var dept=String(gv('department')||'').trim();
+    var cohortRaw=String(gv('cohort')||'').trim();
+    var cadre=normCadre(gv('cadre'));
+    var cohort=cohortRaw||(cohortMap&&cohortMap[dept])||'Unassigned';
+    var iss=[];
+    if(!ctc&&ctc!==0)iss.push('Row '+rn+' ['+id+']: Missing Annual CTC');
+    if(!doj)iss.push('Row '+rn+' ['+id+']: Missing Date of Joining');
+    if(!dept)iss.push('Row '+rn+' ['+id+']: Missing Department');
+    if(!cadre)iss.push('Row '+rn+' ['+id+']: Missing Cadre / Employee Type');
+    if(doj&&dol&&doj>dol)iss.push('Row '+rn+' ['+id+']: DOJ is after DOL');
+    if(ids[id])iss.push('Row '+rn+': Duplicate Employee ID "'+id+'"');
+    ids[id]=true;
+    vals=vals.concat(iss);
+    var fatal=iss.filter(function(x){return x.indexOf('Missing')!==-1||x.indexOf('after')!==-1;}).length>0;
+    emps.push({id:id,name:name,ctc:ctc,doj:doj,dol:dol,dept:dept,cohort:cohort,cadre:cadre,invalid:fatal,warnings:iss});
+  }
+  return{employees:emps,validations:vals};
+}
+function enrich(emps,fy){
+  var today=new Date();today.setHours(0,0,0,0);
+  var fys=new Date(fy,3,1),fye=new Date(fy+1,2,31);
+  return emps.map(function(e){
+    return Object.assign({},e,{
+      // ACTIVE = no DOL or DOL is on/after today
+      active:!e.dol||e.dol>=today,
+      joiningInFY:e.doj&&e.doj>=fys&&e.doj<=fye,
+      leavingInFY:e.dol&&e.dol>=fys&&e.dol<=fye,
+      inFY: !e.dol||e.dol>=fys, // was present during FY (not exited before FY start)
+    });
+  });
+}
+
+// ══ SAMPLE DATA ══
+function genSample(){
+  var depts=[{dept:'Finance',cohort:'Corporate'},{dept:'Legal',cohort:'Corporate'},{dept:'IT',cohort:'Corporate'},{dept:'Womenswear Design',cohort:'Design'},{dept:'Accessories Design',cohort:'Design'},{dept:'Jewellery Making',cohort:'Jewellery Production'},{dept:'Embroidery',cohort:'Jewellery Production'},{dept:'HR & Admin',cohort:'Corporate'}];
+  var ranges={'Management':[1200000,4500000],'Non Management':[360000,900000],'Contractual':[240000,600000],'Consultant':[600000,1800000]};
+  var rows=[],n=1001;
+  function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+  function rd(y,m,d,y2,m2,d2){var d1=new Date(y,m-1,d).getTime(),d2t=new Date(y2,m2-1,d2).getTime(),dt=new Date(d1+Math.random()*(d2t-d1));return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();}
+  for(var di=0;di<depts.length;di++){
+    var dep=depts[di];
+    for(var i=0;i<rnd(5,10);i++){
+      var cKeys=Object.keys(ranges),c=cKeys[rnd(0,cKeys.length-1)],r=ranges[c];
+      var ctc=Math.round(rnd(r[0],r[1])/12000)*12000;
+      rows.push({'Employee ID':'EMP'+n,'Employee Name':'Employee '+(n-1000),'Department':dep.dept,'Cohort':dep.cohort,'Cadre':c,'Annual CTC':ctc,'Date of Joining':rd(2022,1,1,2025,10,1),'Date of Leaving':Math.random()<0.15?rd(2024,6,1,2025,11,30):''});
+      n++;
+    }
+  }
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Employees');
+  var buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+  return new File([buf],'sample.xlsx',{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+
+// ══ CHARTS ══
+var _ch={};
+var PAL=['#a87409','#c9940d','#e5ae20','#6b460f','#7d7060','#9e937f','#b8b0a0','#d4cfc5'];
+var PAL2=['#a87409','#e5ae20','#6b460f','#c9940d','#85590a','#f3d98a','#3f3730','#b8b0a0'];
+Chart.defaults.color='#7d7060';
+Chart.defaults.font.family="'DM Mono',monospace";
+Chart.defaults.font.size=11;
+
+function mkCtx(id){if(_ch[id]){_ch[id].destroy();delete _ch[id];}var e=document.getElementById(id);return e?e.getContext('2d'):null;}
+
+// Scrollable horizontal bar — sets canvas height based on label count
+function barHScroll(id,wrapId,lbs,vals,fmt){
+  var c=mkCtx(id);if(!c)return;
+  fmt=fmt||function(v){return v;};
+  var barH=30,minH=180;
+  var h=Math.max(minH,lbs.length*barH+40);
+  var wrap=document.getElementById(wrapId);
+  if(wrap){wrap.style.height=h+'px';}
+  _ch[id]=new Chart(c,{
+    type:'bar',
+    data:{labels:lbs,datasets:[{data:vals,backgroundColor:PAL,borderRadius:4,borderSkipped:false,barThickness:20}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(x){return fmt(x.raw);}}}},
+      scales:{
+        x:{grid:{color:'#e8e6de'},ticks:{callback:function(v){return fmt(v);},color:'#9e937f'}},
+        y:{grid:{display:false},ticks:{color:'#5e5448'}}
+      }
+    }
+  });
+}
+function barV(id,lbs,ds){
+  var c=mkCtx(id);if(!c)return;
+  _ch[id]=new Chart(c,{type:'bar',data:{labels:lbs,datasets:ds.map(function(d,i){return{label:d.label,data:d.data,backgroundColor:PAL[i],borderRadius:3,borderSkipped:false};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10}},tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+fmtINR(x.raw);}}}},scales:{x:{grid:{display:false},ticks:{color:'#9e937f'}},y:{grid:{color:'#e8e6de'},ticks:{callback:function(v){return fmtAxis(v);},color:'#9e937f'}}}}});
+}
+function dough(id,lbs,vals){
+  var c=mkCtx(id);if(!c)return;
+  _ch[id]=new Chart(c,{type:'doughnut',data:{labels:lbs,datasets:[{data:vals,backgroundColor:PAL2,borderWidth:2,borderColor:'#fefde8',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,color:'#5e5448'}}}}});
+}
+function lineChart(id,lbs,ds){
+  var c=mkCtx(id);if(!c)return;
+  _ch[id]=new Chart(c,{type:'line',data:{labels:lbs,datasets:ds.map(function(d,i){return{label:d.label,data:d.data,borderColor:PAL[i],backgroundColor:PAL[i]+'18',pointBackgroundColor:PAL[i],pointRadius:4,tension:0.4,fill:true};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10}},tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+fmtINR(x.raw*100000);}}}},scales:{x:{grid:{display:false},ticks:{color:'#9e937f'}},y:{grid:{color:'#e8e6de'},ticks:{callback:function(v){return fmtAxis(v*100000);},color:'#9e937f'}}}}});
+}
+function destroyAll(){for(var k in _ch){_ch[k].destroy();delete _ch[k];}}
+
+// ══ EXPORT ══
+function doExport(){
+  var wb=XLSX.utils.book_new(),fy=state.fyYear;
+  var v=state.employees.filter(function(e){return!e.invalid;});
+  var ta=v.reduce(function(s,e){return s+actualCost(e,fy);},0);
+  var tp=v.reduce(function(s,e){return s+projCost(e,fy);},0);
+  var ti=v.reduce(function(s,e){return s+incCost(e,fy,state.incrementMap);},0);
+  var activeHC=v.filter(function(e){return e.active;}).length;
+  function cr(n){return Math.round(n||0);}
+  function sh(data,nm){XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(data),nm);}
+  sh([[fyLbl(fy)+' \u2014 Manpower Budget'],[],['Metric','Value'],
+    ['Total Headcount',state.employees.length],['Active Headcount',activeHC],
+    ['Exited Headcount',state.employees.length-activeHC],
+    ['Actual Incurred Cost (\u20b9)',cr(ta)],['Projected FY Cost (\u20b9)',cr(tp)],
+    ['Inc-Adj Projected (\u20b9)',cr(ti)],['Increment Impact (\u20b9)',cr(ti-tp)],[],
+    ['Generated on',new Date().toLocaleString('en-IN')]],'Summary');
+  var dg=groupBy(v,'dept',fy,state.incrementMap),dr=[['Department','HC','Actual (\u20b9)','Projected (\u20b9)','Inc-Adj (\u20b9)','Impact (\u20b9)']],dt={hc:0,a:0,p:0,i:0};
+  Object.entries(dg).sort(function(a,b){return b[1].headcount-a[1].headcount;}).forEach(function(kv){
+    dr.push([kv[0],kv[1].headcount,cr(kv[1].actual),cr(kv[1].projected),cr(kv[1].incremented),cr(kv[1].incremented-kv[1].projected)]);
+    dt.hc+=kv[1].headcount;dt.a+=kv[1].actual;dt.p+=kv[1].projected;dt.i+=kv[1].incremented;
+  });
+  dr.push(['TOTAL',dt.hc,cr(dt.a),cr(dt.p),cr(dt.i),cr(dt.i-dt.p)]);sh(dr,'Department Summary');
+  var cg=groupBy(v,'cohort',fy,state.incrementMap),cr2=[['Cohort','HC','Actual (\u20b9)','Projected (\u20b9)','Inc-Adj (\u20b9)','Impact (\u20b9)']],ct={hc:0,a:0,p:0,i:0};
+  Object.entries(cg).forEach(function(kv){cr2.push([kv[0],kv[1].headcount,cr(kv[1].actual),cr(kv[1].projected),cr(kv[1].incremented),cr(kv[1].incremented-kv[1].projected)]);ct.hc+=kv[1].headcount;ct.a+=kv[1].actual;ct.p+=kv[1].projected;ct.i+=kv[1].incremented;});
+  cr2.push(['TOTAL',ct.hc,cr(ct.a),cr(ct.p),cr(ct.i),cr(ct.i-ct.p)]);sh(cr2,'Cohort Summary');
+  var kg=groupBy(v,'cadre',fy,state.incrementMap),kr=[['Cadre','HC','Actual (\u20b9)','Projected (\u20b9)','Inc-Adj (\u20b9)','Base%','Mkt%','Impact (\u20b9)']],kt={hc:0,a:0,p:0,i:0};
+  state.allCadres.forEach(function(ca){var val=kg[ca];if(!val)return;var inc=state.incrementMap[ca]||{base:0,market:0};kr.push([ca,val.headcount,cr(val.actual),cr(val.projected),cr(val.incremented),inc.base,inc.market,cr(val.incremented-val.projected)]);kt.hc+=val.headcount;kt.a+=val.actual;kt.p+=val.projected;kt.i+=val.incremented;});
+  kr.push(['TOTAL',kt.hc,cr(kt.a),cr(kt.p),cr(kt.i),'','',cr(kt.i-kt.p)]);sh(kr,'Cadre Summary');
+  sh([['Cadre','Base%','Market%','Total%']].concat(state.allCadres.map(function(ca){var inc=state.incrementMap[ca]||{base:0,market:0};return[ca,inc.base,inc.market,inc.base+inc.market];})),'Increment Assumptions');
+  var er=[['ID','Name','Dept','Cohort','Cadre','DOJ','DOL','Status','Annual CTC','Actual Incurred','Projected FY','Base%','Mkt%','Inc-Adj Projected','Increment Impact']];
+  v.forEach(function(emp){
+    var inc=state.incrementMap[emp.cadre]||{base:0,market:0};
+    var a=actualCost(emp,fy),p=projCost(emp,fy),ip=incCost(emp,fy,state.incrementMap);
+    er.push([emp.id,emp.name,emp.dept,emp.cohort,emp.cadre,
+      emp.doj?emp.doj.toLocaleDateString('en-IN'):'',
+      emp.dol?emp.dol.toLocaleDateString('en-IN'):'',
+      emp.active?'Active':'Exited',
+      cr(emp.ctc),cr(a),cr(p),inc.base,inc.market,cr(ip),cr(ip-p)]);
+  });
+  sh(er,'Employee Detail');
+  sh([['Assumption','Value'],['Proration','Annual CTC / 365'],['Financial Year','1 Apr \u2013 31 Mar'],
+    ['Active Headcount','No DOL or DOL >= today'],
+    ['Actual Incurred','FY start \u2192 today; excludes pre-FY exits'],
+    ['Increment','CTC \u00d7 (1 + Base% + Market%)']],'Assumptions');
+  XLSX.writeFile(wb,'manpower_'+fyLbl(fy).replace(/[\s\u2013]/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+// ══ UI HELPERS ══
+function showEl(id){var e=document.getElementById(id);if(e)e.style.display='';}
+function hideEl(id){var e=document.getElementById(id);if(e)e.style.display='none';}
+function showFlex(id){var e=document.getElementById(id);if(e)e.style.display='flex';}
+function showLoad(m){document.getElementById('loading-msg').textContent=m||'Processing...';showFlex('loading');}
+function hideLoad(){hideEl('loading');}
+function showErr(msg){var el=document.getElementById('upload-error');el.textContent='Error: '+msg;el.style.display='block';}
+
+// ══ INGEST ══
+function ingestFile(file){
+  showLoad('Reading Excel file...');
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var rows=parseExcel(new Uint8Array(ev.target.result));
+      if(!rows.length)throw new Error('No data rows found in the file.');
+      var res=detectMap(rows);
+      if(res.unmapped.length>0){hideLoad();showMapModal(rows,res.mapping,res.unmapped);}
+      else processRows(rows,res.mapping);
+    }catch(err){hideLoad();showErr(err.message);}
+  };
+  reader.onerror=function(){hideLoad();showErr('Could not read file.');};
+  reader.readAsArrayBuffer(file);
+}
+function processRows(rows,mapping){
+  showLoad('Calculating costs...');
+  setTimeout(function(){
+    try{
+      var res=buildRows(rows,mapping,state.cohortMap);
+      state.rawEmployees=enrich(res.employees,state.fyYear);
+      // Collect all cadres present in data — dynamically
+      var cadreSet={};
+      state.rawEmployees.forEach(function(e){if(e.cadre)cadreSet[e.cadre]=1;});
+      // Order: BASE_CADRES first, then any others
+      state.allCadres=BASE_CADRES.filter(function(c){return cadreSet[c];});
+      Object.keys(cadreSet).forEach(function(c){if(BASE_CADRES.indexOf(c)===-1)state.allCadres.push(c);});
+      // Ensure incrementMap has entries for all cadres
+      state.allCadres.forEach(function(c){if(!state.incrementMap[c])state.incrementMap[c]={base:0,market:0};});
+      applyFilters();populateFYSel();populateFilterOpts();
+      renderAll();showValidations(res.validations);
+      hideLoad();hideEl('upload-screen');showEl('dashboard');
+      document.getElementById('dashboard').style.display='block';
+    }catch(err){hideLoad();showErr(err.message);console.error(err);}
+  },80);
+}
+
+// ══ MAPPING MODAL ══
+function showMapModal(rows,auto,unmapped){
+  var hdrs=Object.keys(rows[0]);
+  var c=document.getElementById('mapping-fields');
+  var fl={id:'Employee ID *',ctc:'Annual CTC *',doj:'Date of Joining *',department:'Department *',cadre:'Cadre / Employee Type *',name:'Employee Name',dol:'Date of Leaving',cohort:'Cohort'};
+  c.innerHTML='';
+  ['id','ctc','doj','department','cadre','name','dol','cohort'].forEach(function(f){
+    var div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:.75rem';
+    div.innerHTML='<label style="font-size:.8rem;color:#5e5448;flex:1">'+(fl[f]||f)+'</label>'+
+      '<select id="map-'+f+'" class="filter-select" style="flex:1"><option value="">skip</option>'+
+      hdrs.map(function(h){return'<option value="'+h+'" '+(auto[f]===h?'selected':'')+'>'+h+'</option>';}).join('')+'</select>';
+    c.appendChild(div);
+  });
+  document.getElementById('mapping-modal').style.display='flex';
+  document.getElementById('mapping-confirm-btn').onclick=function(){
+    var nm={};
+    ['id','ctc','doj','department','cadre','name','dol','cohort'].forEach(function(f){
+      var sel=document.getElementById('map-'+f);if(sel&&sel.value)nm[f]=sel.value;
+    });
+    document.getElementById('mapping-modal').style.display='none';
+    processRows(rows,nm);
+  };
+  document.getElementById('mapping-cancel-btn').onclick=function(){document.getElementById('mapping-modal').style.display='none';};
+}
+
+// ══ FILTERS ══
+function applyFilters(){
+  state.employees=state.rawEmployees.filter(function(e){
+    if(state.filters.cohort&&e.cohort!==state.filters.cohort)return false;
+    if(state.filters.department&&e.dept!==state.filters.department)return false;
+    if(state.filters.cadre&&e.cadre!==state.filters.cadre)return false;
+    if(state.filters.status==='active'&&!e.active)return false;
+    if(state.filters.status==='exited'&&e.active)return false;
+    return true;
+  });
+  state.detailPage=1;
+}
+function populateFilterOpts(){
+  var co=[],de=[];
+  state.rawEmployees.forEach(function(e){
+    if(e.cohort&&co.indexOf(e.cohort)===-1)co.push(e.cohort);
+    if(e.dept&&de.indexOf(e.dept)===-1)de.push(e.dept);
+  });
+  co.sort();de.sort();
+  setOpts('filter-cohort',co,'All Cohorts');
+  setOpts('filter-department',de,'All Departments');
+  setOpts('filter-cadre',state.allCadres,'All Cadres');
+}
+function setOpts(id,vals,all){var s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">'+all+'</option>'+vals.map(function(v){return'<option value="'+v+'">'+v+'</option>';}).join('');}
+function populateFYSel(){
+  var s=document.getElementById('filter-fy');if(!s)return;
+  var yrs=[],cy=getCurrentFY();
+  for(var y=cy-2;y<=cy+1;y++)yrs.push(y);
+  s.innerHTML=yrs.map(function(y){return'<option value="'+y+'" '+(y===state.fyYear?'selected':'')+'>'+fyLbl(y)+'</option>';}).join('');
+  document.getElementById('nav-fy-label').textContent=fyLbl(state.fyYear);
+}
+
+// ══ RENDER ══
+function renderAll(){rCards();rIncTable();rIncImpact();rCharts();rSumTables();rJoinLeavers();rDetail();}
+
+function rCards(){
+  var valid=state.employees.filter(function(e){return!e.invalid;}),fy=state.fyYear;
+  // Active HC = employees with no DOL or DOL >= today
+  var activeHC=valid.filter(function(e){return e.active;}).length;
+  var exitedHC=valid.filter(function(e){return!e.active;}).length;
+  var ta=valid.reduce(function(s,e){return s+actualCost(e,fy);},0);
+  var tp=valid.reduce(function(s,e){return s+projCost(e,fy);},0);
+  var ti=valid.reduce(function(s,e){return s+incCost(e,fy,state.incrementMap);},0);
+  var tc=valid.reduce(function(s,e){return s+(e.ctc||0);},0);
+  var cards=[
+    {l:'Total Headcount',v:state.employees.length,s:'all employees in view'},
+    {l:'Active Headcount',v:activeHC,s:'currently in organisation'},
+    {l:'Exited Headcount',v:exitedHC,s:'have left organisation'},
+    {l:'Total Annual CTC',v:fmtINR(tc),s:'sum of all CTCs'},
+    {l:'Actual Incurred Cost',v:fmtINR(ta),s:'1 Apr \u2013 today',g:1},
+    {l:'Projected FY Cost',v:fmtINR(tp),s:fyLbl(fy),g:1},
+    {l:'Inc-Adj Projected',v:fmtINR(ti),s:'after increments',g:1},
+  ];
+  document.getElementById('summary-cards').innerHTML=cards.map(function(c){
+    return '<div class="summary-card '+(c.g?'summary-card-gold':'')+'">'+
+      '<div class="summary-card-label">'+c.l+'</div>'+
+      '<div class="summary-card-value">'+c.v+'</div>'+
+      '<div class="summary-card-sub">'+c.s+'</div></div>';
+  }).join('');
+}
+
+function rIncTable(){
+  var tb=document.getElementById('increment-table-body');
+  tb.innerHTML=state.allCadres.map(function(c){
+    var inc=state.incrementMap[c]||{base:0,market:0},k=c.replace(/[\s\/]/g,'_');
+    return '<tr>'+
+      '<td>'+c+'</td>'+
+      '<td><input class="inc-input" id="ib-'+k+'" type="number" min="0" max="100" step="0.5" value="'+inc.base+'"/></td>'+
+      '<td><input class="inc-input" id="im-'+k+'" type="number" min="0" max="100" step="0.5" value="'+inc.market+'"/></td>'+
+      '<td id="it-'+k+'" style="color:#85590a;font-weight:600">'+(inc.base+inc.market)+'%</td>'+
+      '</tr>';
+  }).join('');
+  state.allCadres.forEach(function(c){
+    var k=c.replace(/[\s\/]/g,'_');
+    ['ib','im'].forEach(function(p){
+      var el=document.getElementById(p+'-'+k);
+      if(el)el.addEventListener('input',function(){
+        var b=parseFloat(document.getElementById('ib-'+k).value)||0;
+        var m=parseFloat(document.getElementById('im-'+k).value)||0;
+        document.getElementById('it-'+k).textContent=(b+m)+'%';
+      });
+    });
+  });
+}
+function readInc(){
+  var m={};
+  state.allCadres.forEach(function(c){
+    var k=c.replace(/[\s\/]/g,'_');
+    var ib=document.getElementById('ib-'+k),im=document.getElementById('im-'+k);
+    m[c]={base:ib?parseFloat(ib.value)||0:0,market:im?parseFloat(im.value)||0:0};
+  });
+  return m;
+}
+
+function rIncImpact(){
+  var valid=state.employees.filter(function(e){return!e.invalid;}),fy=state.fyYear;
+  var tp=valid.reduce(function(s,e){return s+projCost(e,fy);},0);
+  var ti=valid.reduce(function(s,e){return s+incCost(e,fy,state.incrementMap);},0);
+  var imp=ti-tp,pct=tp>0?((imp/tp)*100).toFixed(1):'0';
+  document.getElementById('increment-impact-cards').innerHTML=
+    mkImpCard('Current Projected FY',fmtINR(tp),fyLbl(fy),'#85590a')+
+    mkImpCard('Inc-Adjusted Projected',fmtINR(ti),'after increments','#a87409')+
+    mkImpCard('Total Increment Impact',fmtINR(imp),fmtINRFull(imp),'#c07b0a')+
+    mkImpCard('Impact %',pct+'%','of projected cost','#7d7060');
+}
+function mkImpCard(l,v,s,col){
+  return '<div style="background:#fafaf9;border:1px solid #e8e6de;border-radius:.75rem;padding:1rem">'+
+    '<div class="summary-card-label">'+l+'</div>'+
+    '<div class="summary-card-value" style="font-size:1.5rem;color:'+col+'">'+v+'</div>'+
+    '<div class="summary-card-sub">'+s+'</div></div>';
+}
+
+function rCharts(){
+  var valid=state.employees.filter(function(e){return!e.invalid;}),fy=state.fyYear;
+  var dg=groupBy(valid,'dept',fy,state.incrementMap);
+  var depts=Object.entries(dg).sort(function(a,b){return b[1].headcount-a[1].headcount;});
+
+  // Scrollable horizontal bars for dept charts
+  barHScroll('chart-hc-dept','hc-dept-wrap',
+    depts.map(function(kv){return kv[0];}),
+    depts.map(function(kv){return kv[1].headcount;})
+  );
+  barHScroll('chart-cost-dept','cost-dept-wrap',
+    depts.map(function(kv){return kv[0];}),
+    depts.map(function(kv){return kv[1].projected/100000;}),
+    function(v){return fmtAxis(v*100000);}
+  );
+
+  // Cadre doughnut
+  var kg=groupBy(valid,'cadre',fy,state.incrementMap);
+  var cadreKeys=state.allCadres.filter(function(c){return kg[c];});
+  dough('chart-hc-cadre',cadreKeys,cadreKeys.map(function(c){return kg[c].headcount;}));
+
+  // Monthly trend
+  var mt=monthlyTrend(valid,fy,null),mti=monthlyTrend(valid,fy,state.incrementMap);
+  lineChart('chart-monthly',mt.map(function(m){return m.label;}),
+    [{label:'Current',data:mt.map(function(m){return m.cost/100000;})},
+     {label:'Inc-Adj.',data:mti.map(function(m){return m.cost/100000;})}]);
+
+  // Increment impact by cadre
+  var il=[],ib2=[],ie=[];
+  state.allCadres.forEach(function(c){var g=kg[c];if(!g)return;il.push(c);ib2.push(g.projected/100000);ie.push((g.incremented-g.projected)/100000);});
+  barV('chart-increment-impact',il,[{label:'Projected',data:ib2},{label:'Increment Impact',data:ie}]);
+}
+
+function rSumTables(){
+  var valid=state.employees.filter(function(e){return!e.invalid;}),fy=state.fyYear;
+  rSumTbl('table-cohort',groupBy(valid,'cohort',fy,state.incrementMap));
+  rSumTbl('table-dept',  groupBy(valid,'dept',  fy,state.incrementMap));
+  rSumTbl('table-cadre', groupBy(valid,'cadre', fy,state.incrementMap));
+}
+function rSumTbl(id,gd){
+  var t=document.getElementById(id);if(!t)return;
+  var ents=Object.entries(gd).sort(function(a,b){return b[1].projected-a[1].projected;});
+  var th=0,tp=0,ti=0;
+  var html='<thead><tr><th>Name</th><th>HC</th><th>Projected</th><th>Inc-Adj</th></tr></thead><tbody>';
+  ents.forEach(function(kv){
+    th+=kv[1].headcount;tp+=kv[1].projected;ti+=kv[1].incremented;
+    html+='<tr><td>'+kv[0]+'</td><td>'+kv[1].headcount+'</td><td>'+fmtINR(kv[1].projected)+'</td><td>'+fmtINR(kv[1].incremented)+'</td></tr>';
+  });
+  html+='</tbody><tfoot><tr><td>Total</td><td>'+th+'</td><td>'+fmtINR(tp)+'</td><td>'+fmtINR(ti)+'</td></tr></tfoot>';
+  t.innerHTML=html;
+}
+
+function rJoinLeavers(){
+  var jo=state.employees.filter(function(e){return e.joiningInFY&&!e.invalid;});
+  var le=state.employees.filter(function(e){return e.leavingInFY&&!e.invalid;});
+  function fmt(list,type){
+    if(!list.length)return'<p style="color:#b8b0a0">No '+type+' in '+fyLbl(state.fyYear)+'</p>';
+    return list.slice(0,40).map(function(e){
+      return'<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #f5f5f0"><span>'+e.id+(e.name?' · '+e.name:'')+'</span><span style="color:#b8b0a0">'+e.dept+'</span></div>';
+    }).join('')+(list.length>40?'<p style="color:#b8b0a0;margin-top:.25rem">+'+(list.length-40)+' more</p>':'');
+  }
+  document.getElementById('joiners-list').innerHTML=fmt(jo,'joiners');
+  document.getElementById('leavers-list').innerHTML=fmt(le,'leavers');
+}
+
+function showValidations(vals){
+  var sec=document.getElementById('validation-section'),lst=document.getElementById('validation-list');
+  if(!vals.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  lst.innerHTML=vals.slice(0,60).map(function(v){return'<li>'+v+'</li>';}).join('');
+}
+
+var PAGE=25;
+function getDetailRows(){
+  var s=state.detailSearch.toLowerCase(),rows=state.employees;
+  if(s)rows=rows.filter(function(e){
+    return(e.id&&e.id.toLowerCase().indexOf(s)!==-1)||
+      (e.name&&e.name.toLowerCase().indexOf(s)!==-1)||
+      (e.dept&&e.dept.toLowerCase().indexOf(s)!==-1)||
+      (e.cadre&&e.cadre.toLowerCase().indexOf(s)!==-1)||
+      (e.cohort&&e.cohort.toLowerCase().indexOf(s)!==-1);
+  });
+  var col=state.detailSort.col,dir=state.detailSort.dir;
+  return rows.slice().sort(function(a,b){
+    var av=a[col],bv=b[col];
+    if(typeof av==='string')av=av.toLowerCase();if(typeof bv==='string')bv=bv.toLowerCase();
+    return av<bv?-dir:av>bv?dir:0;
+  });
+}
+function rDetail(){
+  var fy=state.fyYear;
+  var cols=[
+    {key:'id',lbl:'Emp ID'},{key:'name',lbl:'Name'},{key:'dept',lbl:'Dept'},{key:'cohort',lbl:'Cohort'},
+    {key:'cadre',lbl:'Cadre'},{key:'doj',lbl:'Joining'},{key:'dol',lbl:'Leaving'},{key:'active',lbl:'Status'},
+    {key:'ctc',lbl:'Annual CTC'},{key:'actual',lbl:'Actual Incurred'},{key:'projected',lbl:'Projected FY'},
+    {key:'incremented',lbl:'Inc-Adj'},{key:'incImpact',lbl:'Impact'},
+  ];
+  var th=document.getElementById('detail-thead');
+  th.innerHTML='<tr>'+cols.map(function(c){
+    return'<th data-col="'+c.key+'" style="'+(state.detailSort.col===c.key?'color:#a87409':'')+';cursor:pointer">'+c.lbl+'</th>';
+  }).join('')+'</tr>';
+  th.querySelectorAll('th').forEach(function(el){
+    el.addEventListener('click',function(){
+      var col=this.dataset.col;
+      if(state.detailSort.col===col)state.detailSort.dir*=-1;
+      else{state.detailSort.col=col;state.detailSort.dir=1;}
+      rDetail();
+    });
+  });
+  var all=getDetailRows(),tp=Math.ceil(all.length/PAGE)||1,pg=Math.min(state.detailPage,tp);
+  var pr=all.slice((pg-1)*PAGE,pg*PAGE);
+  var tb=document.getElementById('detail-tbody');
+  tb.innerHTML=pr.map(function(e){
+    var a=e.invalid?null:actualCost(e,fy);
+    var p=e.invalid?null:projCost(e,fy);
+    var ip=e.invalid?null:incCost(e,fy,state.incrementMap);
+    var imp=(ip!=null&&p!=null)?ip-p:null;
+    var bdg=e.invalid?'badge-invalid':e.active?'badge-active':'badge-exited';
+    var st=e.invalid?'Error':e.active?'Active':'Exited';
+    return'<tr>'+
+      '<td>'+e.id+'</td>'+
+      '<td>'+(e.name||'\u2014')+'</td>'+
+      '<td>'+(e.dept||'\u2014')+'</td>'+
+      '<td>'+(e.cohort||'\u2014')+'</td>'+
+      '<td>'+(e.cadre||'\u2014')+'</td>'+
+      '<td>'+(e.doj?e.doj.toLocaleDateString('en-IN'):'\u2014')+'</td>'+
+      '<td>'+(e.dol?e.dol.toLocaleDateString('en-IN'):'\u2014')+'</td>'+
+      '<td><span class="'+bdg+'">'+st+'</span></td>'+
+      '<td>'+(e.ctc?fmtINR(e.ctc):'\u2014')+'</td>'+
+      '<td>'+(a!=null?fmtINR(a):'\u2014')+'</td>'+
+      '<td>'+(p!=null?fmtINR(p):'\u2014')+'</td>'+
+      '<td>'+(ip!=null?fmtINR(ip):'\u2014')+'</td>'+
+      '<td>'+(imp!=null?fmtINR(imp):'\u2014')+'</td>'+
+      '</tr>';
+  }).join('');
+  document.getElementById('detail-count').textContent='Showing '+pr.length+' of '+all.length+' employees';
+  document.getElementById('page-info').textContent=pg+' / '+tp;
+  document.getElementById('prev-page').disabled=pg<=1;
+  document.getElementById('next-page').disabled=pg>=tp;
+  state.detailPage=pg;
+}
+
+// ══ EVENTS ══
+var dz=document.getElementById('drop-zone'),fi=document.getElementById('file-input');
+dz.addEventListener('click',function(){fi.click();});
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.style.borderColor='#a87409';});
+dz.addEventListener('dragleave',function(){dz.style.borderColor='';});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.style.borderColor='';var f=e.dataTransfer.files[0];if(f)ingestFile(f);});
+fi.addEventListener('change',function(e){var f=e.target.files[0];if(f)ingestFile(f);});
+document.getElementById('load-sample-btn').addEventListener('click',function(){ingestFile(genSample());});
+document.getElementById('toggle-assumptions-btn').addEventListener('click',function(){
+  var p=document.getElementById('assumptions-panel');
+  p.style.display=p.style.display==='none'?'block':'none';
+});
+document.getElementById('export-btn').addEventListener('click',doExport);
+document.getElementById('reset-btn').addEventListener('click',function(){
+  destroyAll();state.rawEmployees=[];state.employees=[];state.allCadres=[];
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('upload-screen').style.display='flex';
+  fi.value='';
+  document.getElementById('upload-error').style.display='none';
+});
+document.getElementById('apply-increment-btn').addEventListener('click',function(){
+  state.incrementMap=readInc();rCards();rIncImpact();rCharts();rSumTables();rDetail();
+});
+['filter-cohort','filter-department','filter-cadre','filter-status'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',function(e){
+    if(id==='filter-cohort')state.filters.cohort=e.target.value;
+    if(id==='filter-department')state.filters.department=e.target.value;
+    if(id==='filter-cadre')state.filters.cadre=e.target.value;
+    if(id==='filter-status')state.filters.status=e.target.value;
+    applyFilters();renderAll();
+  });
+});
+document.getElementById('filter-fy').addEventListener('change',function(e){
+  state.fyYear=parseInt(e.target.value);
+  document.getElementById('nav-fy-label').textContent=fyLbl(state.fyYear);
+  state.rawEmployees=enrich(state.rawEmployees,state.fyYear);
+  applyFilters();renderAll();
+});
+document.getElementById('clear-filters-btn').addEventListener('click',function(){
+  state.filters={cohort:'',department:'',cadre:'',status:''};
+  ['filter-cohort','filter-department','filter-cadre','filter-status'].forEach(function(id){document.getElementById(id).value='';});
+  applyFilters();renderAll();
+});
+document.getElementById('detail-search').addEventListener('input',function(e){state.detailSearch=e.target.value;state.detailPage=1;rDetail();});
+document.getElementById('prev-page').addEventListener('click',function(){if(state.detailPage>1){state.detailPage--;rDetail();}});
+document.getElementById('next-page').addEventListener('click',function(){state.detailPage++;rDetail();});
+
+} // end initApp
+</script>
+</body>
+</html>
