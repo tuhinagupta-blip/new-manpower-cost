@@ -1,0 +1,45 @@
+* { box-sizing: border-box; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+.filter-select { background:#1f1b17; border:1px solid #3d3730; color:#c9c0b4; font-size:0.75rem; font-family:'DM Mono',monospace; padding:0.35rem 0.75rem; border-radius:0.5rem; outline:none; transition:border-color 0.2s; cursor:pointer; }
+.filter-select:hover,.filter-select:focus { border-color:#a87409; }
+
+.chart-card { background:#171310; border:1px solid #2a2420; border-radius:1rem; padding:1.25rem; }
+.chart-title { color:#c9940d; font-family:'Playfair Display',Georgia,serif; font-weight:600; font-size:0.85rem; letter-spacing:0.02em; margin-bottom:0.5rem; }
+.chart-wrap { position:relative; height:220px; }
+
+.summary-table th { font-family:'DM Mono',monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.08em; color:#6d6050; padding:0.4rem 0.5rem; border-bottom:1px solid #2a2420; text-align:right; }
+.summary-table th:first-child { text-align:left; }
+.summary-table td { font-size:0.75rem; padding:0.45rem 0.5rem; border-bottom:1px solid #1f1b17; color:#b8b0a0; font-family:'DM Mono',monospace; text-align:right; }
+.summary-table td:first-child { text-align:left; color:#e9e7e2; }
+.summary-table tr:last-child td { border-bottom:none; font-weight:600; color:#c9940d; border-top:1px solid #3d3730; }
+
+#detail-table th { font-family:'DM Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:#6d6050; padding:0.5rem 0.75rem; border-bottom:1px solid #2a2420; text-align:right; white-space:nowrap; cursor:pointer; user-select:none; }
+#detail-table th:first-child { text-align:left; }
+#detail-table th:hover { color:#c9940d; }
+#detail-table td { font-family:'DM Mono',monospace; font-size:0.68rem; padding:0.5rem 0.75rem; border-bottom:1px solid #1a1612; color:#9e937f; text-align:right; white-space:nowrap; }
+#detail-table td:first-child { text-align:left; color:#d4cfc5; }
+#detail-table tbody tr:hover td { background:#1f1b17; }
+.badge-active { background:#14532d33; color:#86efac; border:1px solid #14532d; padding:1px 6px; border-radius:99px; font-size:0.6rem; }
+.badge-exited { background:#7f1d1d33; color:#fca5a5; border:1px solid #7f1d1d; padding:1px 6px; border-radius:99px; font-size:0.6rem; }
+.badge-invalid { background:#78350f33; color:#fcd34d; border:1px solid #78350f; padding:1px 6px; border-radius:99px; font-size:0.6rem; }
+
+.summary-card { background:#171310; border:1px solid #2a2420; border-radius:1rem; padding:1rem 1.25rem; }
+.summary-card-label { font-family:'DM Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.1em; color:#6d6050; margin-bottom:0.5rem; }
+.summary-card-value { font-family:'Playfair Display',Georgia,serif; font-size:1.4rem; font-weight:600; color:#f3d98a; line-height:1; }
+.summary-card-sub { font-family:'DM Mono',monospace; font-size:0.65rem; color:#574c3f; margin-top:0.35rem; }
+.summary-card-gold { border-color:#6b460f; background:#1a140a; }
+.summary-card-gold .summary-card-value { color:#edc44a; }
+
+#increment-table-body td { padding:0.5rem 0.25rem; font-size:0.75rem; font-family:'DM Mono',monospace; color:#9e937f; border-bottom:1px solid #1f1b17; text-align:center; }
+#increment-table-body td:first-child { text-align:left; color:#d4cfc5; }
+.inc-input { background:#1a1612; border:1px solid #3d3730; color:#f3d98a; font-family:'DM Mono',monospace; font-size:0.75rem; width:3.5rem; padding:0.2rem 0.4rem; border-radius:0.4rem; text-align:center; outline:none; transition:border-color 0.2s; }
+.inc-input:focus { border-color:#c9940d; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:#1a1612; }
+::-webkit-scrollbar-thumb { background:#3d3730; border-radius:99px; }
+::-webkit-scrollbar-thumb:hover { background:#6d6050; }
+
+@keyframes spin { to { transform:rotate(360deg); } }
+.animate-spin { animation:spin 0.8s linear infinite; }
