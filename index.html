@@ -22,6 +22,7 @@
 body{font-family:var(--ff);background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased;font-size:13.5px;line-height:1.5}
 .fh{font-family:var(--fh)}.lbl{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3)}
 .row-lbl{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--tx3);margin-bottom:.45rem}
+/* Top bar */
 .topbar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:.875rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .brand-n{font-family:var(--fh);font-size:1.2rem;font-weight:600;color:var(--gold2);letter-spacing:.02em}
 .brand-s{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--tx3)}
@@ -29,9 +30,11 @@ body{font-family:var(--ff);background:var(--bg);color:var(--tx);-webkit-font-smo
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .live{display:none;align-items:center;gap:.3rem;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--G);font-weight:600}
 .live-d{width:6px;height:6px;border-radius:50%;background:var(--G);animation:pulse 2s infinite}
+/* Tabs */
 .tabs{background:var(--sur);border-bottom:1px solid var(--bdr);display:flex;padding:0 2rem;overflow-x:auto}
 .tab{padding:.6rem 1.25rem;font-size:.78rem;font-weight:500;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
 .tab:hover{color:var(--tx)}.tab.on{color:var(--gold2);border-bottom-color:var(--gold);font-weight:600}
+/* Filter bar */
 .fbar{background:var(--sur2);border-bottom:1px solid var(--bdr);padding:.625rem 2rem;display:flex;flex-wrap:wrap;align-items:flex-end;gap:.75rem}
 .fg{display:flex;flex-direction:column;gap:.2rem}
 .fs{border:1px solid var(--bdr2);border-radius:var(--r);padding:.3rem .6rem;font-size:.75rem;font-family:var(--fn);color:var(--tx);background:var(--sur);outline:none;cursor:pointer;min-width:115px}
@@ -47,7 +50,9 @@ body{font-family:var(--ff);background:var(--bg);color:var(--tx);-webkit-font-smo
 .fdd-item input[type=checkbox]{accent-color:var(--gold2);width:13px;height:13px;flex-shrink:0;cursor:pointer}
 .fdd-active .fdd-btn{border-color:var(--gold);background:rgba(139,111,71,.05)}
 .fdd-active .fdd-label{color:var(--gold2);font-weight:500}
+/* Main */
 main{padding:1.375rem 2rem;display:flex;flex-direction:column;gap:1.125rem}
+/* Stat cards */
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.75rem}
 .sc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r2);padding:1rem 1.125rem;box-shadow:var(--sh);position:relative;overflow:hidden}
 .sc::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--bdr2)}
@@ -58,7 +63,9 @@ main{padding:1.375rem 2rem;display:flex;flex-direction:column;gap:1.125rem}
 .sc.G .sv{color:var(--G)}.sc.A .sv{color:var(--A)}.sc.R .sv{color:var(--R)}
 .sc.B .sv{color:var(--B)}.sc.P .sv{color:var(--P)}.sc.T .sv{color:var(--T)}
 .ss{font-size:.68rem;color:var(--tx3)}
+/* Person lists */
 .lg{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+@media(max-width:820px){.lg{grid-template-columns:1fr}}
 .lc{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r2);box-shadow:var(--sh);display:flex;flex-direction:column;height:350px}
 .lch{padding:.625rem 1rem;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .lct{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--tx)}
@@ -70,14 +77,18 @@ main{padding:1.375rem 2rem;display:flex;flex-direction:column;gap:1.125rem}
 .lis{font-size:.68rem;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
 .lid{font-size:.7rem;font-family:var(--fn);color:var(--gold);white-space:nowrap;flex-shrink:0}
 .le{padding:2rem;text-align:center;color:var(--tx3);font-size:.78rem}
+/* Sections */
 .sec{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r2);padding:1.125rem;box-shadow:var(--sh)}
 .h2{font-family:var(--fh);font-size:1.05rem;font-weight:600;color:var(--tx);margin-bottom:.625rem}
 .sec-sub{font-size:.7rem;color:var(--tx3);margin-top:-.375rem;margin-bottom:.75rem}
+/* Grids */
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.875rem}
 .g2{display:grid;grid-template-columns:repeat(2,1fr);gap:.875rem}
 .gi{display:grid;grid-template-columns:275px 1fr;gap:.875rem}
+/* Charts */
 .cw{position:relative;width:100%}.h240{height:240px}.h280{height:280px}
 .cscroll{overflow-y:auto;max-height:320px}
+/* Tables */
 .tw{overflow:auto;max-height:320px;border-radius:0 0 var(--r) var(--r)}
 .tw.tall{max-height:450px}
 table.t{width:100%;border-collapse:collapse;min-width:380px}
@@ -85,6 +96,7 @@ table.t thead th{position:sticky;top:0;z-index:2;background:var(--sur2);font-siz
 table.t thead th:first-child{text-align:left}
 table.t tbody td{font-size:.74rem;padding:.36rem .6rem;border-bottom:1px solid var(--bg2);color:var(--tx2);text-align:right;white-space:nowrap;font-family:var(--fn)}
 table.t tbody td:first-child{text-align:left;color:var(--tx);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+table.t tbody tr:hover td{background:var(--sur2)}
 table.t tfoot td{font-size:.74rem;font-weight:600;color:var(--tx);border-top:1.5px solid var(--bdr2);border-bottom:none;padding:.38rem .6rem;text-align:right;position:sticky;bottom:0;background:var(--bg2);font-family:var(--fn)}
 table.t tfoot td:first-child{text-align:left}
 #dtable thead th{position:sticky;top:0;z-index:2;background:var(--sur2);font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);padding:.4rem .7rem;border-bottom:1.5px solid var(--bdr2);text-align:right;white-space:nowrap;cursor:pointer}
@@ -92,6 +104,7 @@ table.t tfoot td:first-child{text-align:left}
 #dtable thead th:hover{color:var(--tx)}
 #dtable tbody td{font-size:.72rem;padding:.38rem .7rem;border-bottom:1px solid var(--bg2);color:var(--tx2);text-align:right;white-space:nowrap;font-family:var(--fn)}
 #dtable tbody td:first-child{text-align:left;color:var(--tx);font-weight:500}
+/* Increment */
 .itab-p{border:1px solid var(--bdr);border-radius:0 var(--r) var(--r) var(--r);padding:.875rem}
 .inc-t{width:100%;border-collapse:collapse;table-layout:fixed}
 .inc-t th{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);padding:.25rem .25rem .4rem;text-align:center;border-bottom:1.5px solid var(--bdr)}
@@ -99,23 +112,30 @@ table.t tfoot td:first-child{text-align:left}
 .inc-t td{font-size:.72rem;padding:.3rem .25rem;border-bottom:1px solid var(--bg2);color:var(--tx2);text-align:center;font-family:var(--fn)}
 .inc-t td:first-child{text-align:left;color:var(--tx);font-weight:500;white-space:nowrap;font-size:.7rem}
 .ii{background:var(--sur2);border:1px solid var(--bdr2);color:var(--B);font-family:var(--fn);font-size:.7rem;width:2.8rem;padding:.18rem .2rem;border-radius:4px;text-align:center;outline:none}
+.ii:focus{border-color:var(--gold)}
+/* Badges */
 .badge{padding:2px 8px;border-radius:999px;font-size:.6rem;font-weight:600;font-family:var(--fn)}
 .bG{background:#e8f5ee;color:var(--G)}.bA{background:#fff8e6;color:var(--A)}
 .bR{background:#fdecea;color:var(--R)}.bB{background:#e8f0fb;color:var(--B)}
+/* Buttons */
 .btn{border:none;cursor:pointer;font-family:var(--ff);font-weight:500;border-radius:var(--r);transition:opacity .15s;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
 .btn:hover{opacity:.85}
 .btn-dk{background:var(--gold2);color:#fff;padding:.35rem 1rem;font-size:.78rem}
 .btn-ot{background:var(--sur);color:var(--tx);border:1px solid var(--bdr2);padding:.3rem .875rem;font-size:.75rem}
 .btn-gr{background:var(--G);color:#fff;padding:.28rem .75rem;font-size:.72rem}
 .btn-sm{padding:.22rem .55rem!important;font-size:.68rem!important}
+/* Drop zone */
 .dz{border:2px dashed var(--bdr2);border-radius:var(--r2);padding:2.25rem;cursor:pointer;text-align:center;transition:all .2s}
 .dz:hover{border-color:var(--gold);background:rgba(139,111,71,.04)}
+/* Modals */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;padding:1rem}
 .modal-box{background:var(--sur);border-radius:var(--r2);padding:2rem;width:100%;max-width:400px;box-shadow:var(--sh2);position:relative}
+/* Loading */
 .lbg{display:none;position:fixed;inset:0;background:rgba(245,241,232,.9);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center}
 @keyframes spin{to{transform:rotate(360deg)}}
 .sring{width:36px;height:36px;border:2.5px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .875rem}
-.lt{width:100%;border-collapse:collapse;min-width:860px}
+/* Landing */
+.lo{overflow-x:auto}.lt{width:100%;border-collapse:collapse;min-width:860px}
 .lt th{background:var(--sur2);font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);padding:.45rem .6rem;border-bottom:2px solid var(--bdr2);text-align:right;white-space:nowrap}
 .lt th:first-child{text-align:left}
 .lt td{padding:.42rem .6rem;border-bottom:1px solid var(--bg2);text-align:right;font-family:var(--fn);font-size:.74rem;color:var(--tx2)}
@@ -123,9 +143,11 @@ table.t tfoot td:first-child{text-align:left}
 .lt .rc td{background:var(--sur2);font-weight:600;cursor:pointer}
 .lt .rc td:first-child{font-family:var(--fh);font-size:.85rem;color:var(--tx)}
 .lt .rd td{background:var(--sur);font-size:.72rem}
+.lt .rd td:first-child{padding-left:2rem;color:var(--tx2)}
 .lt .rt td{background:var(--bg2);font-weight:700;font-size:.78rem;border-top:2px solid var(--bdr2);border-bottom:none}
 .hg{color:var(--gold)!important;font-weight:600!important}.hd{color:var(--gold2)!important;font-weight:700!important}
 .ct{font-size:.6rem;margin-right:.4rem;color:var(--tx3)}
+/* Input */
 .inp{width:100%;background:var(--sur2);border:1px solid var(--bdr2);border-radius:var(--r);padding:.45rem .75rem;font-size:.85rem;outline:none;font-family:var(--ff);color:var(--tx)}
 .upload-box{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r2);padding:2.25rem;width:100%;max-width:520px;box-shadow:var(--sh2)}
 .fc{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg)}
@@ -134,84 +156,76 @@ table.t tfoot td:first-child{text-align:left}
 </head>
 <body>
 
+<!-- UPLOAD SCREEN -->
 <div id="s-upload" style="display: none;" class="fc">
   <div class="upload-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
       <div>
-        <p class="lbl" style="letter-spacing:.2em;margin-bottom:.25rem">Admin Upload</p>
-        <h1 style="font-family:var(--fh);font-size:1.6rem;font-weight:600;color:var(--gold2)">Upload Employee Data</h1>
+        <p class="lbl">Admin Upload</p>
+        <h1 style="font-family:var(--fh);font-size:1.6rem;color:var(--gold2)">Upload Employee Data</h1>
       </div>
-      <button id="upload-close-btn" class="btn btn-ot btn-sm" title="Cancel upload">✕ Cancel</button>
+      <button id="upload-close-btn" class="btn btn-ot btn-sm">✕ Cancel</button>
     </div>
     <div class="dz" id="drop-z">
-      <p style="font-weight:600;color:var(--tx);margin-bottom:.25rem">Drop Excel file here</p>
+      <p style="font-weight:600;">Drop Excel file here</p>
       <p style="font-size:.75rem;color:var(--tx3)">or click to browse · .xlsx / .xls</p>
       <input type="file" id="fi" accept=".xlsx,.xls" style="display:none">
     </div>
-    <div id="u-err" style="display:none;margin-top:.75rem;padding:.5rem .75rem;border-radius:var(--r);background:#fdecea;border:1px solid #f5c2be;color:var(--R);font-size:.75rem"></div>
+    <div id="u-err" style="display:none;margin-top:.75rem;padding:.5rem;border-radius:var(--r);background:#fdecea;color:var(--R);font-size:.75rem"></div>
   </div>
 </div>
 
+<!-- ADMIN LOGIN -->
 <div class="modal-bg" id="admin-modal" style="display: none;">
   <div class="modal-box">
     <button onclick="$$('admin-modal').style.display='none'" style="position:absolute;top:.875rem;right:.875rem;background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--tx3)">×</button>
-    <p class="lbl" style="text-align:center;margin-bottom:.375rem;letter-spacing:.2em">Admin Access</p>
+    <p class="lbl" style="text-align:center;margin-bottom:.375rem;">Admin Access</p>
     <h2 style="font-family:var(--fh);font-size:1.35rem;font-weight:600;color:var(--gold2);text-align:center;margin-bottom:1.125rem">Sign In to Upload Data</h2>
     <div style="display:flex;flex-direction:column;gap:.75rem">
-      <div><label class="lbl" style="display:block;margin-bottom:.3rem">Email</label>
-        <input id="l-email" type="email" class="inp" placeholder="tuhina.gupta@sabyasachi.com"></div>
-      <div><label class="lbl" style="display:block;margin-bottom:.3rem">Password</label>
-        <input id="l-pass" type="password" class="inp" placeholder="••••••••">
-      </div>
-      <div id="l-err" style="display:none;background:#fdecea;border:1px solid #f5c2be;border-radius:var(--r);padding:.45rem .75rem;font-size:.78rem;color:var(--R);font-weight:500"></div>
-      <button type="button" id="login-btn" style="width:100%;padding:.6rem;font-size:.85rem;background:var(--gold2);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--ff);font-weight:600;margin-top:.25rem">Sign In</button>
+      <div><label class="lbl">Email</label><input id="l-email" type="email" class="inp" placeholder="tuhina.gupta@sabyasachi.com"></div>
+      <div><label class="lbl">Password</label><input id="l-pass" type="password" class="inp" placeholder="••••••••"></div>
+      <div id="l-err" style="display:none;background:#fdecea;border:1px solid #f5c2be;border-radius:var(--r);padding:.45rem;font-size:.78rem;color:var(--R);font-weight:500"></div>
+      <button type="button" id="login-btn" style="width:100%;padding:.6rem;font-size:.85rem;background:var(--gold2);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-weight:600;">Sign In</button>
     </div>
   </div>
 </div>
 
+<!-- MAP MODAL -->
 <div class="modal-bg" id="map-modal" style="display: none;">
   <div class="modal-box" style="max-width:540px;max-height:90vh;overflow-y:auto">
-    <h2 style="font-family:var(--fh);font-size:1.2rem;font-weight:600;margin-bottom:.375rem">Map Your Columns</h2>
-    <div id="map-hdrs" style="background:#e8f0fb;border:1px solid #bfdbfe;border-radius:var(--r);padding:.5rem .75rem;margin-bottom:.875rem;font-size:.65rem;color:#1a4a7a;line-height:1.6"></div>
+    <h2 style="font-family:var(--fh);font-size:1.2rem;font-weight:600;">Map Your Columns</h2>
+    <div id="map-hdrs" style="background:#e8f0fb;border-radius:var(--r);padding:.5rem;margin-bottom:.875rem;font-size:.65rem;color:#1a4a7a;"></div>
     <div id="map-fields" style="display:flex;flex-direction:column;gap:.5rem"></div>
     <div style="display:flex;gap:.5rem;margin-top:1.125rem">
-      <button class="btn btn-dk" id="map-ok" style="flex:1;padding:.5rem">Confirm</button>
-      <button class="btn btn-ot" id="map-x" style="flex:1;padding:.5rem">Cancel</button>
+      <button class="btn btn-dk" id="map-ok" style="flex:1;">Confirm</button>
+      <button class="btn btn-ot" id="map-x" style="flex:1;">Cancel</button>
     </div>
   </div>
 </div>
 
+<!-- LOADING -->
 <div class="lbg" id="loading" style="display: none;">
   <div style="text-align:center">
     <div class="sring"></div>
-    <p id="load-msg" style="font-family:var(--fh);color:var(--gold2);font-size:1rem">Processing records...</p>
+    <p id="load-msg" style="font-family:var(--fh);color:var(--gold2);font-size:1rem">Processing...</p>
   </div>
 </div>
 
+<!-- DASHBOARD -->
 <div id="s-dash" style="display: block;">
   <div class="topbar">
     <div>
-      <div class="brand-n" id="dash-welcome">Sabyasachi</div>
+      <div class="brand-n">Sabyasachi</div>
       <div class="brand-s">Manpower Budget Dashboard</div>
     </div>
     <div class="tr">
-      <div class="live" id="live-badge" style="display: none;"><span class="live-d"></span>Live</div>
+      <div class="live" id="live-badge"><span class="live-d"></span>Live</div>
       <span id="nav-fy" style="font-size:.72rem;color:var(--tx3)"></span>
       <button class="btn btn-ot btn-sm" id="ass-btn">ⓘ Method</button>
       <button class="btn btn-dk btn-sm" id="exp-btn">↓ Export</button>
       <button id="reupload-btn" class="btn btn-ot btn-sm" style="display: none;">↻ Upload New</button>
-      <button id="publish-btn" class="btn btn-gr btn-sm" style="display: none;">🔁 Publish</button>
-      <span id="nav-user" style="display: none;"></span>
       <button id="logout-btn" class="btn btn-ot btn-sm" style="display: none;">Sign Out</button>
-      <button id="admin-btn" class="btn btn-ot btn-sm" style="display: inline-flex;">🔑 Admin</button>
-    </div>
-  </div>
-
-  <div id="ass-panel" style="display:none;background:var(--sur2);border-bottom:1px solid var(--bdr);padding:.875rem 2rem">
-    <p class="lbl" style="color:var(--gold);margin-bottom:.625rem">Calculation Methodology</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:.5rem;font-size:.75rem">
-      <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:.625rem"><strong>YTD Actual</strong><br><span>(CTC÷365)×days from max(1 Apr,DOJ) to min(today,LWD).</span></div>
-      <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:.625rem"><strong>Inc Effective Date</strong><br><span>Applies to Next FY. Apr-Jun at current CTC. Jul-Mar at incremented CTC.</span></div>
+      <button id="admin-btn" class="btn btn-ot btn-sm">🔑 Admin</button>
     </div>
   </div>
 
@@ -224,23 +238,18 @@ table.t tfoot td:first-child{text-align:left}
   </div>
 
   <div class="fbar">
-    <div class="fg" style="flex:1"><label class="lbl">Search</label>
-      <input type="text" id="global-search" class="inp" placeholder="Name, ID, department..."/></div>
-    <div class="fg" id="f-cohort-wrap"><label class="lbl">Cohort</label>
-      <div class="fdd"><button class="fdd-btn"><span class="fdd-label">All Cohorts</span></button><div class="fdd-panel"></div></div></div>
-    <div class="fg" id="f-dept-wrap"><label class="lbl">Department</label>
-      <div class="fdd"><button class="fdd-btn"><span class="fdd-label">All Departments</span></button><div class="fdd-panel"></div></div></div>
-    <div class="fg" id="f-cadre-wrap"><label class="lbl">Cadre</label>
-      <div class="fdd"><button class="fdd-btn"><span class="fdd-label">All Cadres</span></button><div class="fdd-panel"></div></div></div>
-    <div class="fg"><label class="lbl">Financial Year</label>
-      <select class="fdd-btn" id="f-fy"></select></div>
+    <div class="fg" style="flex:1"><label class="lbl">Search</label><input type="text" id="global-search" class="inp" placeholder="Name, Dept..."/></div>
+    <div class="fg" id="f-cohort-wrap" data-key="cohort"><label class="lbl">Cohort</label><div class="fdd"><button class="fdd-btn"><span class="fdd-label">All Cohorts</span></button><div class="fdd-panel"></div></div></div>
+    <div class="fg" id="f-dept-wrap" data-key="dept"><label class="lbl">Department</label><div class="fdd"><button class="fdd-btn"><span class="fdd-label">All Departments</span></button><div class="fdd-panel"></div></div></div>
+    <div class="fg" id="f-cadre-wrap" data-key="cadre"><label class="lbl">Cadre</label><div class="fdd"><button class="fdd-btn"><span class="fdd-label">All Cadres</span></button><div class="fdd-panel"></div></div></div>
+    <div class="fg"><label class="lbl">Financial Year</label><select class="fdd-btn" id="f-fy"></select></div>
     <button class="btn btn-ot btn-sm" id="f-clear">✕ Clear</button>
   </div>
 
-  <div id="pane-overview" style="display: block;">
+  <div id="pane-overview">
     <div id="empty-state" style="display: flex; min-height: 55vh; align-items: center; justify-content: center; padding: 3rem; text-align: center; flex-direction: column; gap: 1rem;">
       <h2 style="font-family:var(--fh);font-size:1.5rem;color:var(--gold2)">No data loaded yet</h2>
-      <p style="font-size:.85rem;color:var(--tx3)">Click <strong>🔑 Admin</strong> to sign in and upload your workforce Excel file.</p>
+      <p style="font-size:.85rem;color:var(--tx3)">Log in as Admin to upload your workforce data.</p>
     </div>
     <div id="overview-content" style="display: none;">
       <main>
@@ -270,24 +279,17 @@ table.t tfoot td:first-child{text-align:left}
       <div class="sec"><p class="h2">Increment Cost Impact</p><div class="cards" id="inc-impact"></div></div>
     </div>
     <div class="g2">
-      <div class="sec"><p class="h2">Monthly Cost Trend</p><div class="cw h280"><canvas id="c-monthly"></canvas></div></div>
-      <div class="sec"><p class="h2">Impact by Cadre</p><div class="cw h280"><canvas id="c-inc-cadre"></canvas></div></div>
+        <div class="sec"><p class="h2">Monthly Cost Trend</p><div class="cw h280"><canvas id="c-monthly"></canvas></div></div>
+        <div class="sec"><p class="h2">Impact by Cadre</p><div class="cw h280"><canvas id="c-inc-cadre"></canvas></div></div>
     </div>
   </main></div>
 
-  <div id="pane-nhc" style="display: none;"><main>
-    <div id="nhc-content"><div class="cards" id="nhc-cards"></div><div class="sec" style="margin-top:1rem"><table class="t" id="t-nhc-detail"></table></div></div>
-  </main></div>
-
-  <div id="pane-landing" style="display: none;"><main><div class="sec"><div id="land-table-wrap"></div></div></main></div>
-
-  <div id="pane-detail" style="display: none;"><main>
+  <div id="pane-nhc" style="display:none;"><main><div id="nhc-content"><div class="cards" id="nhc-cards"></div><div class="sec" style="margin-top:1rem"><div class="tw"><table class="t" id="t-nhc-detail"></table></div></div></div></main></div>
+  <div id="pane-landing" style="display:none;"><main><div class="sec"><div id="land-table-wrap"></div></div></main></div>
+  <div id="pane-detail" style="display:none;"><main>
     <div class="sec">
-      <div style="display:flex;justify-content:space-between;margin-bottom:.875rem">
-        <p class="h2">Employee Detail</p>
-        <input type="text" id="dt-search" class="inp" style="width:240px" placeholder="Search..."/>
-      </div>
-      <div style="overflow:auto;max-height:520px"><table id="dtable"><thead><tr id="dt-head"></tr></thead><tbody id="dt-body"></tbody></table></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:.875rem"><p class="h2">Employee Detail</p><input type="text" id="dt-search" class="inp" style="width:240px" placeholder="Search..."/></div>
+      <div class="tw tall"><table id="dtable"><thead><tr id="dt-head"></tr></thead><tbody id="dt-body"></tbody></table></div>
       <div style="display:flex;justify-content:space-between;margin-top:.5rem;font-size:.63rem;color:var(--tx3)">
         <span id="dt-count"></span>
         <div><button class="btn btn-ot btn-sm" id="dt-prev">‹</button><span id="dt-pg"></span><button class="btn btn-ot btn-sm" id="dt-next">›</button></div>
@@ -301,88 +303,91 @@ table.t tfoot td:first-child{text-align:left}
 var ADMIN='tuhina.gupta@sabyasachi.com', PASS='Sabyasachi@2025';
 var BASE_CADRES=['Management','Non Management','Contractual','Consultant','Store - New York'];
 var S={raw:[],emps:[],nhc:[],fy:2025,incMap:{},allCadres:[],pg:1,sort:{col:'id',dir:1},search:'',filters:{cohort:[],dept:[],cadre:[],status:[]}};
-BASE_CADRES.forEach(function(c){S.incMap[c]={b:0,m:0}});
+BASE_CADRES.forEach(c => S.incMap[c] = {b:0,m:0});
 var ACTIVE_TAB='overview', isAdmin=false;
 
 function $$(id){return document.getElementById(id);}
 function fmt(n){return n? '₹'+(n/10000000).toFixed(2)+' Cr' : '₹0';}
-function tod(){var d=new Date();d.setHours(0,0,0,0);return d;}
 function getFY(y){return{s:new Date(y,3,1),e:new Date(y+1,2,31)}}
 
 function ytdCost(e,fy){
-  var b=getFY(fy),t=tod(); if(t<b.s)return 0; if(e.dol&&e.dol<b.s)return 0;
+  var b=getFY(fy), t=new Date(); t.setHours(0,0,0,0); if(t<b.s || (e.dol && e.dol<b.s)) return 0;
   var s=e.doj>b.s?e.doj:b.s, en=e.dol&&e.dol<t?e.dol:t;
   return s>en?0:(e.ctc/365)*(Math.round((en-s)/86400000)+1);
 }
 function projCost(e,fy){
-  var b=getFY(fy); if(e.dol&&e.dol<b.s)return 0;
+  var b=getFY(fy); if(e.dol&&e.dol<b.s) return 0;
   var s=e.doj>b.s?e.doj:b.s, en=e.dol&&e.dol<b.e?e.dol:b.e;
   return s>en?0:(e.ctc/365)*(Math.round((en-s)/86400000)+1);
 }
 function incCost(e,fy){
   var nfy=fy+1, b=getFY(nfy), inc=S.incMap[e.cadre]||{b:0,m:0}, pct=(inc.b+inc.m)/100;
-  if(e.dol&&e.dol<b.s)return 0;
+  if(e.dol&&e.dol<b.s) return 0;
   var incDate=new Date(nfy,6,1), effEnd=e.dol||b.e;
   var s1=e.doj>b.s?e.doj:b.s, en1=effEnd<incDate?effEnd:new Date(nfy,5,30);
   var c1=s1>en1?0:(e.ctc/365)*(Math.round((en1-s1)/86400000)+1);
-  if(effEnd<incDate)return c1;
+  if(effEnd<incDate) return c1;
   var s2=incDate>e.doj?incDate:e.doj, en2=effEnd;
   var c2=s2>en2?0:((e.ctc*(1+pct))/365)*(Math.round((en2-s2)/86400000)+1);
   return c1+c2;
 }
 
-function renderAll(){
-  var v=S.emps.filter(e=>!e.invalid);
-  var act=v.filter(e=>e.empStatus==='active').length, ntc=v.filter(e=>e.empStatus==='notice').length;
-  $$('hc-cards').innerHTML=`<div class="sc G"><div class="sl">Active</div><div class="sv">${act}</div></div><div class="sc A"><div class="sl">Notice</div><div class="sv">${ntc}</div></div>`;
-  var tp=v.reduce((s,e)=>s+projCost(e,S.fy),0), ti=v.reduce((s,e)=>s+incCost(e,S.fy),0);
-  $$('cost-cards').innerHTML=`<div class="sc B"><div class="sl">Projected FY</div><div class="sv">${fmt(tp)}</div></div><div class="sc G"><div class="sl">Inc-Adj</div><div class="sv">${fmt(ti)}</div></div>`;
-  rDetail(); rCharts();
+function rDetail(){
+  var pr = S.emps.slice((S.pg-1)*25, S.pg*25);
+  $$('dt-body').innerHTML=pr.map(e=>`<tr><td>${e.id}</td><td>${e.name}</td><td>${e.dept}</td><td>${e.cadre}</td><td>${e.empStatus}</td><td>${fmt(e.ctc)}</td></tr>`).join('');
+  $$('dt-count').textContent=`Showing ${pr.length} of ${S.emps.length}`;
 }
 
 function rCharts(){
-  if(window._charts)window._charts.forEach(c=>c.destroy()); window._charts=[];
-  var ctx1=$$('c-hc-dept').getContext('2d');
-  window._charts.push(new Chart(ctx1,{type:'bar',data:{labels:['Sample'],datasets:[{data:[10],backgroundColor:'#8b6f47'}]},options:{indexAxis:'y'}}));
-}
-
-function rDetail(){
-  var rows=S.emps;
-  $$('dt-body').innerHTML=rows.slice(0,25).map(e=>`<tr><td>${e.id}</td><td>${e.name}</td><td>${e.dept}</td><td>${e.cadre}</td><td>${e.empStatus}</td><td>${fmt(e.ctc)}</td></tr>`).join('');
+  if(window._charts) window._charts.forEach(c=>c.destroy()); window._charts=[];
+  var depts = [...new Set(S.emps.map(e=>e.dept))].slice(0,10);
+  var ctx = $$('c-hc-dept').getContext('2d');
+  window._charts.push(new Chart(ctx,{type:'bar',data:{labels:depts,datasets:[{data:depts.map(d=>S.emps.filter(e=>e.dept===d).length),backgroundColor:'#8b6f47'}]},options:{indexAxis:'y',animation:false}}));
 }
 
 function doExport(){
-  if(!S.raw.length) return alert('No data');
-  var chartIds=['c-hc-dept','c-cost-dept','c-monthly'];
-  chartIds.forEach(id=>{ var c=Chart.getChart(id); if(c)c.update('none'); });
+  if(!S.raw.length) return alert('No data to export');
+  window._charts.forEach(c=>c.update('none'));
   setTimeout(()=>{
-    var html='<html><body><h1>Dashboard Charts</h1>';
-    chartIds.forEach(id=>{ var el=$$(id); if(el) html+=`<h3>${id}</h3><img src="${el.toDataURL()}"/>`; });
-    var w=window.open(); w.document.write(html); w.print();
-  },500);
+    var win=window.open('','_blank');
+    var html='<html><head><style>body{font-family:sans-serif;padding:20px}img{max-width:100%;border:1px solid #ddd;margin-bottom:20px}</style></head><body><h1>Sabyasachi Budget Charts</h1>';
+    ['c-hc-dept','c-cost-dept','c-monthly'].forEach(id=>{
+        var el=$$(id); if(el) html+=`<h3>${id}</h3><img src="${el.toDataURL('image/png')}"/>`;
+    });
+    win.document.write(html+'</body></html>'); win.document.close();
+    win.onload = () => win.print();
+  },600);
 }
 
 $$('login-btn').onclick=function(){
-  if($$('l-email').value===ADMIN && $$('l-pass').value===PASS){
+  var email=$$('l-email').value, pass=$$('l-pass').value;
+  if(email===ADMIN && pass===PASS){
     isAdmin=true; $$('admin-modal').style.display='none';
     $$('reupload-btn').style.display=$$('logout-btn').style.display='inline-flex';
     $$('admin-btn').style.display='none'; $$('s-upload').style.display='flex';
-  } else alert('Invalid');
+  } else { $$('l-err').textContent='Invalid Credentials'; $$('l-err').style.display='block'; }
 };
-$$('admin-btn').onclick=()=>$$('admin-modal').style.display='flex';
-$$('reupload-btn').onclick=()=>$$('s-upload').style.display='fc';
+
 $$('fi').onchange=function(e){
   var f=e.target.files[0]; var r=new FileReader();
   r.onload=function(ev){
     var wb=XLSX.read(ev.target.result,{type:'array'});
     var data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-    S.raw=data.map(r=>({id:r['Employee Code'],name:r['Employee Name'],dept:r['Department'],cadre:r['Cadre']||'Management',ctc:r['Annual CTC'],doj:new Date(),empStatus:'active'}));
+    S.raw=data.map(r=>({id:r['Employee Code']||r['ID'],name:r['Employee Name']||r['Name'],dept:r['Department'],cadre:r['Cadre']||'Management',ctc:parseFloat(String(r['Annual CTC']).replace(/,/g,''))||0,doj:new Date(),empStatus:'active'}));
     S.emps=[...S.raw]; S.allCadres=BASE_CADRES;
     $$('s-upload').style.display='none'; $$('overview-content').style.display='block'; $$('empty-state').style.display='none';
+    $$('inc-gen').innerHTML = S.allCadres.map(c=>`<tr><td>${c}</td><td><input class="ii" type="number" value="0"></td><td><input class="ii" type="number" value="0"></td><td>0%</td></tr>`).join('');
     renderAll();
   }; r.readAsArrayBuffer(f);
 };
 
-function $$(id){return document.getElementById(id);}
+$$('admin-btn').onclick=()=>$$('admin-modal').style.display='flex';
+$$('exp-btn').onclick=doExport;
+document.querySelectorAll('.tab').forEach(t=>t.onclick=function(){
+    var id=this.dataset.tab; ACTIVE_TAB=id;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); this.classList.add('on');
+    ['overview','cost','nhc','landing','detail'].forEach(p=>$$('pane-'+p).style.display=p===id?'block':'none');
+    if(id==='detail') rDetail();
+});
 </script>
 </body></html>
